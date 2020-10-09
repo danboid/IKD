@@ -49,6 +49,7 @@ int main()
 static void initialSetup()
 {
 	SetSpritesTileTable(tileset); //sets the tiles to be used for our various sprites
+    SetTileTable(tileset); //Tile set to use for ClearVram()
 	ClearVram(); //fill entire screen with first tile in the tileset (blank the screen)
 }
 
