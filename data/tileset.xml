@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<gfx-xform version="1">
+	<input file="tileset.png" type="png" tile-width="8" tile-height="8" />
+	<output file="tileset.inc" remove-duplicate-tiles="true">
+		<tiles var-name="tileset" />
+		<maps pointers-size="8">
+			<map var-name="tank1_sprites" left="1" top="0" width="17" height="1" />
+		</maps>
+	</output>
+</gfx-xform>
+

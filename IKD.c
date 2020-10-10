@@ -13,12 +13,17 @@
 #include "data/tileset.inc"
 
 uint_least8_t     player_x = 80, ///< player x position on screen. 0 is far left
-		          player_y = 40; ///< player y position on screen. 0 is top
+		          player_y = 40, ///< player y position on screen. 0 is top
+                  tank1_current_frame=0,
+		          tank1_max_frames=17;
 		          
 int btnPrev = 0;     // Previous button
 int btnHeld = 0;     // buttons that are held right now
 int btnPressed = 0;  // buttons that were pressed this frame
-int btnReleased = 0; // buttons that were released this frame 
+int btnReleased = 0; // buttons that were released this frame
+
+const char * tank1_sprites[16] = {tank1_0, tank1_23, tank1_45, tank1_68, tank1_90, tank1_113, tank1_135, tank1_158, tank1_180, tank1_203, tank1_225, tank1_248, tank1_270, tank1_293, tank1_315, tank1_338};
+const char * tank1_current_sprite; ///< used as an index in tank1_sprites array to display the correct sprite
 
 void drawIntro(void);
 void processIntro(void);
@@ -78,24 +83,29 @@ void drawIntro(void)
 void processIntro(void)
 {    
     btnHeld = ReadJoypad(0); //read in our player one joypad input
-    //btnPressed = btnHeld & (btnHeld ^ btnPrev);
+    btnPressed = btnHeld & (btnHeld ^ btnPrev);
     //btnReleased = btnPrev & (btnHeld ^ btnPrev);
 
-    if(btnHeld & BTN_RIGHT){
-        MapSprite2(0,tank1_90,0);
-        player_x++;
+    if(btnPressed & BTN_RIGHT){
+        tank1_current_frame++; //move forward to next animation frame
+		if(tank1_current_frame == tank1_max_frames)
+		{
+			tank1_current_frame=0;
+		}
+        tank1_current_sprite = tank1_sprites[tank1_current_frame]; //change our tracking variable to the correct sprite based on new frame
+		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
-    if(btnHeld & BTN_LEFT){
-        MapSprite2(0,tank1_90,SPRITE_FLIP_X);
-        player_x--;
-    }
-    if(btnHeld & BTN_UP){
-        MapSprite2(0,tank1_0,0);
-        player_y--;
-    }
-    if(btnHeld & BTN_DOWN){
-        MapSprite2(0,tank1_0,SPRITE_FLIP_Y);
-        player_y++;
+    if(btnPressed & BTN_LEFT){
+		if(tank1_current_frame == 0)
+		{
+			tank1_current_frame=16;
+		}
+		else
+        {
+            tank1_current_frame--; //move back to previous animation frame
+        }
+        tank1_current_sprite = tank1_sprites[tank1_current_frame]; //change our tracking variable to the correct sprite based on new frame
+		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
     btnPrev = btnHeld;
 }
