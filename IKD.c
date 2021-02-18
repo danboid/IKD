@@ -15,8 +15,7 @@
 uint_least8_t     player_x = 80, ///< player x position on screen. 0 is far left
 		          player_y = 40, ///< player y position on screen. 0 is top
                   tank1_current_frame = 0,
-		          tank1_max_frames = 16,
-                  bullet_speed = 1;
+		          tank1_max_frames = 16;
 		          
 int btnPrev = 0;     // Previous button
 int btnHeld = 0;     // buttons that are held right now
