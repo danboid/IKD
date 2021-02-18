@@ -14,8 +14,9 @@
 
 uint_least8_t     player_x = 80, ///< player x position on screen. 0 is far left
 		          player_y = 40, ///< player y position on screen. 0 is top
-                  tank1_current_frame=0,
-		          tank1_max_frames=16;
+                  tank1_current_frame = 0,
+		          tank1_max_frames = 16,
+                  bullet_speed = 1;
 		          
 int btnPrev = 0;     // Previous button
 int btnHeld = 0;     // buttons that are held right now
@@ -25,8 +26,16 @@ int btnReleased = 0; // buttons that were released this frame
 const char * tank1_sprites[16] = {tank1_0, tank1_23, tank1_45, tank1_68, tank1_90, tank1_113, tank1_135, tank1_158, tank1_180, tank1_203, tank1_225, tank1_248, tank1_270, tank1_293, tank1_315, tank1_338};
 const char * tank1_current_sprite; ///< used as an index in tank1_sprites array to display the correct sprite
 
+struct bulletStruct{
+	unsigned char x;
+	unsigned char y;
+};
+
+struct bulletStruct p1_bullet;
+
 void drawIntro(void);
 void processIntro(void);
+void processBullet(void);
 void initIntro(void);
 static void initialSetup(void);
 
@@ -45,6 +54,7 @@ int main()
 			WaitVsync(1);
 			drawIntro();
 			processIntro();
+            processBullet();
 		}
 }
 
@@ -107,6 +117,16 @@ void processIntro(void)
         tank1_current_sprite = tank1_sprites[tank1_current_frame]; //change our tracking variable to the correct sprite based on new frame
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
+    if(btnPressed & BTN_A){
+        MapSprite2(1, bullet, 0);
+        MoveSprite(1, 100, 100, 1, 1);
+        p1_bullet.x = 100;
+        p1_bullet.y = 100;
+    }
     btnPrev = btnHeld;
 }
 
+void processBullet(void){
+p1_bullet.y -= 1;
+MoveSprite(1, 100, p1_bullet.y, 1, 1);
+}
