@@ -12,10 +12,7 @@
 #include <uzebox.h>
 #include "data/tileset.inc"
 
-uint_least8_t     player_x = 80, ///< player x position on screen. 0 is far left
-		          player_y = 40, ///< player y position on screen. 0 is top
-                  tank1_current_frame = 0,
-		          tank1_max_frames = 16;
+uint_least8_t   tank1_current_frame = 0, tank1_max_frames = 16;
 		          
 int btnPrev = 0;     // Previous button
 int btnHeld = 0;     // buttons that are held right now
@@ -28,9 +25,17 @@ const char * tank1_current_sprite; ///< used as an index in tank1_sprites array 
 struct bulletStruct{
 	unsigned char x;
 	unsigned char y;
+    bool active;
 };
 
 struct bulletStruct p1_bullet;
+
+struct tankStruct{
+	unsigned char x;
+	unsigned char y;
+};
+
+struct tankStruct p1_tank;
 
 void drawIntro(void);
 void processIntro(void);
@@ -72,9 +77,12 @@ static void initialSetup()
  */
 void initIntro(void)
 {
-	MapSprite2(0, tank1_0, 0); //setup tank for drawing
-	player_x = 100; //set tank to the middle
-	player_y = 100; //center tank vertically
+      MapSprite2(0, tank1_0, 0); //setup tank for drawing
+      
+	p1_tank.x = 100; //set tank to the middle
+	p1_tank.y = 100; //center tank vertically
+	
+	p1_bullet.active = false;
 }
 
 /**
@@ -83,7 +91,7 @@ void initIntro(void)
 void drawIntro(void)
 {
 	ClearVram(); //wipe screen each frame
-	MoveSprite(0, player_x, player_y, 1, 1); //position tank sprite
+	MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); //position tank sprite
 }
 
 /**
@@ -117,15 +125,22 @@ void processIntro(void)
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
     if(btnPressed & BTN_A){
-        MapSprite2(1, bullet, 0);
-        MoveSprite(1, 100, 100, 1, 1);
-        p1_bullet.x = 100;
-        p1_bullet.y = 100;
+        if(p1_bullet.active == false ){
+            p1_bullet.x = p1_tank.x;
+            p1_bullet.y = p1_tank.y;
+            p1_bullet.active = true;
+            MapSprite2(1, bullet, 0); //map bullet
+            MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
+        }
     }
     btnPrev = btnHeld;
 }
 
 void processBullet(void){
-p1_bullet.y -= 1;
-MoveSprite(1, 100, p1_bullet.y, 1, 1);
+    if(p1_bullet.y > 0 && p1_bullet.active == true ){
+        p1_bullet.y -= 1;
+        MoveSprite(1, 100, p1_bullet.y, 1, 1);
+	}else {
+		p1_bullet.active = false;
+	}
 }
