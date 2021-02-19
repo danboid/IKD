@@ -1,32 +1,32 @@
 // Tile and sprite data for IKD
 
-#define TANK1_0_WIDTH 1
-#define TANK1_0_HEIGHT 1
-const char tank1_0[] PROGMEM ={
+#define TANK1_000_WIDTH 1
+#define TANK1_000_HEIGHT 1
+const char tank1_000[] PROGMEM ={
 1,1
 ,0x1};
 
-#define TANK1_23_WIDTH 1
-#define TANK1_23_HEIGHT 1
-const char tank1_23[] PROGMEM ={
+#define TANK1_023_WIDTH 1
+#define TANK1_023_HEIGHT 1
+const char tank1_023[] PROGMEM ={
 1,1
 ,0x2};
 
-#define TANK1_45_WIDTH 1
-#define TANK1_45_HEIGHT 1
-const char tank1_45[] PROGMEM ={
+#define TANK1_045_WIDTH 1
+#define TANK1_045_HEIGHT 1
+const char tank1_045[] PROGMEM ={
 1,1
 ,0x3};
 
-#define TANK1_68_WIDTH 1
-#define TANK1_68_HEIGHT 1
-const char tank1_68[] PROGMEM ={
+#define TANK1_068_WIDTH 1
+#define TANK1_068_HEIGHT 1
+const char tank1_068[] PROGMEM ={
 1,1
 ,0x4};
 
-#define TANK1_90_WIDTH 1
-#define TANK1_90_HEIGHT 1
-const char tank1_90[] PROGMEM ={
+#define TANK1_090_WIDTH 1
+#define TANK1_090_HEIGHT 1
+const char tank1_090[] PROGMEM ={
 1,1
 ,0x5};
 
