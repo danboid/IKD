@@ -1,7 +1,7 @@
 /** \file IKD.c
 *   \brief The main source file for IKD, a Uzebox remake of the tank games in Atari's Combat
 *   \author Dan MacDonald
-*   \date 2020
+*   \date 2020-2021
 */
 
 #include <stdbool.h>
@@ -12,12 +12,14 @@
 #include <uzebox.h>
 #include "data/tileset.inc"
 
-uint_least8_t   tank1_current_frame = 0, tank1_max_frames = 16;
+uint_least8_t   tank_max_frames = 16;
 		          
 int btnPrev = 0;     // Previous button
 int btnHeld = 0;     // buttons that are held right now
 int btnPressed = 0;  // buttons that were pressed this frame
 int btnReleased = 0; // buttons that were released this frame
+
+int angles[] = {0, 23, 45, 68, 90, 113, 135, 158, 180, 203, 225, 248, 270, 293, 315, 338};
 
 const char * tank1_sprites[16] = {tank1_000, tank1_023, tank1_045, tank1_068, tank1_090, tank1_113, tank1_135, tank1_158, tank1_180, tank1_203, tank1_225, tank1_248, tank1_270, tank1_293, tank1_315, tank1_338};
 const char * tank1_current_sprite; ///< used as an index in tank1_sprites array to display the correct sprite
@@ -33,6 +35,7 @@ struct bulletStruct p1_bullet;
 struct tankStruct{
 	unsigned char x;
 	unsigned char y;
+    int angle;
 };
 
 struct tankStruct p1_tank;
@@ -81,6 +84,7 @@ void initIntro(void)
       
 	p1_tank.x = 100; //set tank to the middle
 	p1_tank.y = 100; //center tank vertically
+	p1_tank.angle = 0;
 	
 	p1_bullet.active = false;
 }
@@ -104,24 +108,25 @@ void processIntro(void)
     //btnReleased = btnPrev & (btnHeld ^ btnPrev);
 
     if(btnPressed & BTN_RIGHT){
-        tank1_current_frame++; //move forward to next animation frame
-		if(tank1_current_frame == tank1_max_frames)
+        p1_tank.angle++; //move forward to next animation frame
+        
+		if(p1_tank.angle == tank_max_frames)
 		{
-			tank1_current_frame=0;
+            p1_tank.angle=0;
 		}
-        tank1_current_sprite = tank1_sprites[tank1_current_frame]; //change our tracking variable to the correct sprite based on new frame
+        tank1_current_sprite = tank1_sprites[p1_tank.angle]; //change our tracking variable to the correct sprite based on new frame
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
     if(btnPressed & BTN_LEFT){
-		if(tank1_current_frame == 0)
+		if(p1_tank.angle == 0)
 		{
-			tank1_current_frame=15;
+			p1_tank.angle=15;
 		}
 		else
         {
-            tank1_current_frame--; //move back to previous animation frame
+            p1_tank.angle--; //move back to previous animation frame
         }
-        tank1_current_sprite = tank1_sprites[tank1_current_frame]; //change our tracking variable to the correct sprite based on new frame
+        tank1_current_sprite = tank1_sprites[p1_tank.angle]; //change our tracking variable to the correct sprite based on new frame
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
     if(btnPressed & BTN_A){
