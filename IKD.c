@@ -5,6 +5,7 @@
 */
 
 #include <stdbool.h>
+#include <math.h>
 #include <avr/io.h>
 #include <stdlib.h>
 #include <avr/pgmspace.h>
@@ -19,14 +20,16 @@ int btnHeld = 0;     // buttons that are held right now
 int btnPressed = 0;  // buttons that were pressed this frame
 int btnReleased = 0; // buttons that were released this frame
 
-int angles[] = {0, 23, 45, 68, 90, 113, 135, 158, 180, 203, 225, 248, 270, 293, 315, 338};
+float angles[] = {0, 23, 45, 68, 90, 113, 135, 158, 180, 203, 225, 248, 270, 293, 315, 338};
 
 const char * tank1_sprites[16] = {tank1_000, tank1_023, tank1_045, tank1_068, tank1_090, tank1_113, tank1_135, tank1_158, tank1_180, tank1_203, tank1_225, tank1_248, tank1_270, tank1_293, tank1_315, tank1_338};
 const char * tank1_current_sprite; ///< used as an index in tank1_sprites array to display the correct sprite
 
 struct bulletStruct{
-	unsigned char x;
-	unsigned char y;
+	float x;
+	float y;
+    float vX;
+    float vY;
     bool active;
 };
 
@@ -85,6 +88,8 @@ void initIntro(void)
 	p1_tank.x = 100; //set tank to the middle
 	p1_tank.y = 100; //center tank vertically
 	p1_tank.angle = 0;
+    p1_bullet.vX = 0;
+    p1_bullet.vY = 0;
 	
 	p1_bullet.active = false;
 }
@@ -134,6 +139,8 @@ void processIntro(void)
             p1_bullet.x = p1_tank.x;
             p1_bullet.y = p1_tank.y;
             p1_bullet.active = true;
+            p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
+            p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
             MapSprite2(1, bullet, 0); //map bullet
             MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
         }
@@ -142,10 +149,12 @@ void processIntro(void)
 }
 
 void processBullet(void){
-    if(p1_bullet.y > 0 && p1_bullet.active == true ){
-        p1_bullet.y -= 1;
-        MoveSprite(1, 100, p1_bullet.y, 1, 1);
+    if(p1_bullet.active == true ){
+        p1_bullet.x += p1_bullet.vX;
+        p1_bullet.y += p1_bullet.vY;
+        MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
 	}else {
 		p1_bullet.active = false;
 	}
+    
 }
