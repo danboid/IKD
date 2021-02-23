@@ -36,8 +36,8 @@ struct bulletStruct{
 struct bulletStruct p1_bullet;
 
 struct tankStruct{
-	unsigned char x;
-	unsigned char y;
+	float x;
+	float y;
     int angle;
 };
 
@@ -89,7 +89,7 @@ void initIntro(void)
 	p1_tank.y = 100; //center tank vertically
 	p1_tank.angle = 0;
     p1_bullet.vX = 0;
-    p1_bullet.vY = 0;
+    p1_bullet.vY = -1;
 	
 	p1_bullet.active = false;
 }
@@ -120,6 +120,8 @@ void processIntro(void)
             p1_tank.angle=0;
 		}
         tank1_current_sprite = tank1_sprites[p1_tank.angle]; //change our tracking variable to the correct sprite based on new frame
+        p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
+        p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
     if(btnPressed & BTN_LEFT){
@@ -132,6 +134,8 @@ void processIntro(void)
             p1_tank.angle--; //move back to previous animation frame
         }
         tank1_current_sprite = tank1_sprites[p1_tank.angle]; //change our tracking variable to the correct sprite based on new frame
+        p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
+        p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
     if(btnPressed & BTN_A){
@@ -139,11 +143,14 @@ void processIntro(void)
             p1_bullet.x = p1_tank.x;
             p1_bullet.y = p1_tank.y;
             p1_bullet.active = true;
-            p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
-            p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
             MapSprite2(1, bullet, 0); //map bullet
             MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
         }
+    }
+    if(btnHeld & BTN_UP){
+        p1_tank.x += p1_bullet.vX/4;
+        p1_tank.y += p1_bullet.vY/4;
+        MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1);
     }
     btnPrev = btnHeld;
 }
