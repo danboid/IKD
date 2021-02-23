@@ -149,7 +149,7 @@ void processIntro(void)
 }
 
 void processBullet(void){
-    if(p1_bullet.active == true ){
+    if(p1_bullet.y > 0 && p1_bullet.y < 224 && p1_bullet.x > 0 && p1_bullet.x < 240 && p1_bullet.active == true ){
         p1_bullet.x += p1_bullet.vX;
         p1_bullet.y += p1_bullet.vY;
         MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
