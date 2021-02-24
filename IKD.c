@@ -44,6 +44,7 @@ struct tankStruct{
 struct tankStruct p1_tank;
 
 void drawIntro(void);
+void processTrig(void);
 void processIntro(void);
 void processBullet(void);
 void initIntro(void);
@@ -120,8 +121,7 @@ void processIntro(void)
             p1_tank.angle=0;
 		}
         tank1_current_sprite = tank1_sprites[p1_tank.angle]; //change our tracking variable to the correct sprite based on new frame
-        p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
-        p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
+        processTrig();
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
     if(btnPressed & BTN_LEFT){
@@ -134,8 +134,7 @@ void processIntro(void)
             p1_tank.angle--; //move back to previous animation frame
         }
         tank1_current_sprite = tank1_sprites[p1_tank.angle]; //change our tracking variable to the correct sprite based on new frame
-        p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
-        p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
+        processTrig();
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
     if(btnPressed & BTN_A){
@@ -164,4 +163,9 @@ void processBullet(void){
 		p1_bullet.active = false;
 	}
     
+}
+
+void processTrig(void){
+    p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
+    p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
 }
