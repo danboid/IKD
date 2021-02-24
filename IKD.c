@@ -12,6 +12,7 @@
 #include <avr/interrupt.h>
 #include <uzebox.h>
 #include "data/tileset.inc"
+#include "data/sfx.inc"
 
 uint_least8_t   tank_max_frames = 16;
 		          
@@ -56,6 +57,7 @@ static void initialSetup(void);
 int main()
 {
 		//some basic prep work
+        InitMusicPlayer(patches);
         initialSetup();
         initIntro();
 		//Main loop
@@ -144,6 +146,7 @@ void processIntro(void)
             p1_bullet.active = true;
             MapSprite2(1, bullet, 0); //map bullet
             MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
+            TriggerFx(0,0xFF,true);
         }
     }
     if(btnHeld & BTN_UP){
