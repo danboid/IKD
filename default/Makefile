@@ -93,7 +93,7 @@ $(TARGET): $(OBJECTS)
 	avr-objdump -h -S $< > $@
 
 %.uze: $(TARGET)
-	-$(UZEBIN_DIR)packrom $(GAME).hex $@ $(INFO)
+	../../uzebox/tools/packrom/packrom $(GAME).hex $@ $(INFO)
 
 UNAME := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 AVRSIZEFLAGS := -A ${TARGET}
