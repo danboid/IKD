@@ -86,13 +86,13 @@ static void initialSetup()
  */
 void initIntro(void)
 {
-      MapSprite2(0, tank1_000, 0); //setup tank for drawing
+      MapSprite2(0, tank1_090, 0); //setup tank for drawing
       
-	p1_tank.x = 100; //set tank to the middle
-	p1_tank.y = 100; //center tank vertically
-	p1_tank.angle = 0;
-    p1_bullet.vX = 0;
-    p1_bullet.vY = -1;
+	p1_tank.x = 10; //set tank to the left
+	p1_tank.y = 112; //center tank vertically
+	p1_tank.angle = 4; // Face right
+    p1_bullet.vX = 1;
+    p1_bullet.vY = 0;
 	
 	p1_bullet.active = false;
 }
