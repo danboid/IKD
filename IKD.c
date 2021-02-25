@@ -44,11 +44,10 @@ struct tankStruct{
 
 struct tankStruct p1_tank;
 
-void drawIntro(void);
-void processTrig(void);
-void processIntro(void);
-void processBullet(void);
 void initIntro(void);
+void processTrig(void);
+void processBullet(void);
+void processControls(void);
 static void initialSetup(void);
 
 /**
@@ -56,19 +55,18 @@ static void initialSetup(void);
  */
 int main()
 {
-		//some basic prep work
-        InitMusicPlayer(patches);
-        initialSetup();
-        initIntro();
-		//Main loop
-		while(1)
-		{
-			//wait until the next frame
-			WaitVsync(1);
-			drawIntro();
-			processIntro();
-            processBullet();
-		}
+    //some basic prep work
+    InitMusicPlayer(patches);
+    initialSetup();
+    initIntro();
+    //Main loop
+    while(1)
+    {
+        //wait until the next frame
+        WaitVsync(1);
+        processBullet();
+        processControls();
+    }
 }
 
 /**
@@ -86,7 +84,7 @@ static void initialSetup()
  */
 void initIntro(void)
 {
-      MapSprite2(0, tank1_090, 0); //setup tank for drawing
+    MapSprite2(0, tank1_090, 0); //setup tank for drawing
       
 	p1_tank.x = 10; //set tank to the left
 	p1_tank.y = 112; //center tank vertically
@@ -98,19 +96,12 @@ void initIntro(void)
 }
 
 /**
- * \brief Draws the custom intro
- */
-void drawIntro(void)
-{
-	ClearVram(); //wipe screen each frame
-	MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); //position tank sprite
-}
-
-/**
  * \processes controller input
  */
-void processIntro(void)
+void processControls(void)
 {    
+    ClearVram(); //wipe screen each frame
+    MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); //position tank sprite
     btnHeld = ReadJoypad(0); //read in our player one joypad input
     btnPressed = btnHeld & (btnHeld ^ btnPrev);
     //btnReleased = btnPrev & (btnHeld ^ btnPrev);
