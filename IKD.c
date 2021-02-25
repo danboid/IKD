@@ -44,7 +44,7 @@ struct tankStruct{
 
 struct tankStruct p1_tank;
 
-void initIntro(void);
+void initIKD(void);
 void processTrig(void);
 void processBullet(void);
 void processControls(void);
@@ -58,7 +58,7 @@ int main()
     //some basic prep work
     InitMusicPlayer(patches);
     initialSetup();
-    initIntro();
+    initIKD();
     //Main loop
     while(1)
     {
@@ -80,15 +80,15 @@ static void initialSetup()
 }
 
 /**
- * \brief Setup for custom intro
+ * \brief Initialize various variables
  */
-void initIntro(void)
+void initIKD(void)
 {
     MapSprite2(0, tank1_090, 0); //setup tank for drawing
       
 	p1_tank.x = 10; //set tank to the left
 	p1_tank.y = 112; //center tank vertically
-	p1_tank.angle = 4; // Face right
+	p1_tank.angle = 4; // face right
     p1_bullet.vX = 1;
     p1_bullet.vY = 0;
 	
@@ -113,7 +113,7 @@ void processControls(void)
 		{
             p1_tank.angle=0;
 		}
-        tank1_current_sprite = tank1_sprites[p1_tank.angle]; //change our tracking variable to the correct sprite based on new frame
+        tank1_current_sprite = tank1_sprites[p1_tank.angle]; //change our tracking variable to the correct sprite based on the tanks angle
         processTrig();
 		MapSprite2(0, tank1_current_sprite, 0); //actually reassign the sprites in memory to the correct images
     }
