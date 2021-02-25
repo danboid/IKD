@@ -145,8 +145,20 @@ void processControls(void) {
     }
   }
   if (btnHeld & BTN_UP) {
-    p1_tank.x += p1_bullet.vX / 4;
-    p1_tank.y += p1_bullet.vY / 4;
+    p1_tank.x += p1_bullet.vX / 2;
+    if (p1_tank.x < 0) {
+        p1_tank.x += 2;
+    }
+    if (p1_tank.x > 220) {
+        p1_tank.x -= 2;
+    }
+    p1_tank.y += p1_bullet.vY / 2;
+    if (p1_tank.y < 0) {
+        p1_tank.y += 2;
+    }
+    if (p1_tank.y > 210) {
+        p1_tank.y -= 2;
+    }
     MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1);
   }
   btnPrev = btnHeld;
