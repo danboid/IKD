@@ -1,5 +1,11 @@
 // Tile and sprite data for IKD
 
+#define BLANK_WIDTH 1
+#define BLANK_HEIGHT 1
+const char blank[] PROGMEM ={
+1,1
+,0x0};
+
 #define TANK1_000_WIDTH 1
 #define TANK1_000_HEIGHT 1
 const char tank1_000[] PROGMEM ={

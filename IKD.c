@@ -37,6 +37,7 @@ struct bulletStruct {
   float vX;
   float vY;
   bool active;
+  int age;
 };
 
 struct bulletStruct p1_bullet;
@@ -85,6 +86,7 @@ void initIKD(void) {
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
   p1_bullet.active = false;
+  p1_bullet.age = 0;
 }
 
 /**
@@ -127,6 +129,7 @@ void processControls(void) {
   }
   if (btnPressed & BTN_A) {
     if (p1_bullet.active == false) {
+      p1_bullet.age = 0;
       p1_bullet.x = p1_tank.x;
       p1_bullet.y = p1_tank.y;
       p1_bullet.active = true;
@@ -156,13 +159,14 @@ void processControls(void) {
 }
 
 void processBullet(void) {
-  if (p1_bullet.y > 0 && p1_bullet.y < 224 && p1_bullet.x > 0 &&
-      p1_bullet.x < 240 && p1_bullet.active == true) {
-    p1_bullet.x += p1_bullet.vX * 3;
-    p1_bullet.y += p1_bullet.vY * 3;
-    MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
+  if (p1_bullet.active == true && p1_bullet.age < 50) {
+        p1_bullet.age++;
+        p1_bullet.x += p1_bullet.vX * 3;
+        p1_bullet.y += p1_bullet.vY * 3;
+        MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
   } else {
     p1_bullet.active = false;
+    MapSprite2(1, blank, 0);
   }
 }
 
