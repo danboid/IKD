@@ -28,8 +28,12 @@ const char *tank1_sprites[16] = {tank1_000, tank1_023, tank1_045, tank1_068,
                                  tank1_090, tank1_113, tank1_135, tank1_158,
                                  tank1_180, tank1_203, tank1_225, tank1_248,
                                  tank1_270, tank1_293, tank1_315, tank1_338};
-const char *tank1_current_sprite; ///< used as an index in tank1_sprites array
-                                  ///< to display the correct sprite
+                                  
+const char *tank2_sprites[16] = {tank2_000, tank2_023, tank2_045, tank2_068,
+                                 tank2_090, tank2_113, tank2_135, tank2_158,
+                                 tank2_180, tank2_203, tank2_225, tank2_248,
+                                 tank2_270, tank2_293, tank2_315, tank2_338};
+const char *tank1_current_sprite, *tank2_current_sprite;
 
 struct bulletStruct {
   float x;
@@ -40,7 +44,7 @@ struct bulletStruct {
   int age;
 };
 
-struct bulletStruct p1_bullet;
+struct bulletStruct p1_bullet, p2_bullet;
 
 struct tankStruct {
   float x;
@@ -48,7 +52,7 @@ struct tankStruct {
   int angle;
 };
 
-struct tankStruct p1_tank;
+struct tankStruct p1_tank, p2_tank;
 
 void initIKD(void);
 void processTrig(void);
@@ -87,6 +91,15 @@ void initIKD(void) {
   p1_bullet.vY = 0;
   p1_bullet.active = false;
   p1_bullet.age = 0;
+  
+  MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
+  p2_tank.x = 210;    // set tank to the right
+  p2_tank.y = 112;   // center tank vertically
+  p2_tank.angle = 12; // face left
+  p2_bullet.vX = -1;
+  p2_bullet.vY = 0;
+  p2_bullet.active = false;
+  p2_bullet.age = 0;
 }
 
 /**
@@ -94,7 +107,8 @@ void initIKD(void) {
  */
 void processControls(void) {
   ClearVram();                               // wipe screen each frame
-  MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); // position tank sprite
+  MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); // position tank 1 sprite
+  MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 1 sprite
   btnHeld = ReadJoypad(0); // read in our player one joypad input
   btnPressed = btnHeld & (btnHeld ^ btnPrev);
   // btnReleased = btnPrev & (btnHeld ^ btnPrev);
