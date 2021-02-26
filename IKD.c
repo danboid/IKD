@@ -53,15 +53,12 @@ void initIKD(void);
 void processTrig(void);
 void processBullet(void);
 void processControls(void);
-static void initialSetup(void);
 
 /**
  * \brief The main game loop. This just cycles endlessly.
  */
 int main() {
   // some basic prep work
-  InitMusicPlayer(patches);
-  initialSetup();
   initIKD();
   // Main loop
   while (1) {
@@ -73,26 +70,20 @@ int main() {
 }
 
 /**
- * \brief Performs some basic initialization functions.
+ * \brief Initialize various things
  */
-static void initialSetup() {
+void initIKD(void) {
+  InitMusicPlayer(patches);
   SetSpritesTileTable(tileset); // sets the tiles to be used for our various sprites
   SetTileTable(tileset); // Tile set to use for ClearVram()
   ClearVram(); // fill entire screen with first tile in the tileset
-}
-
-/**
- * \brief Initialize various variables
- */
-void initIKD(void) {
-  MapSprite2(0, tank1_090, 0); // setup tank for drawing
-
+  
+  MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
   p1_tank.x = 10;    // set tank to the left
   p1_tank.y = 112;   // center tank vertically
   p1_tank.angle = 4; // face right
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
-
   p1_bullet.active = false;
 }
 
