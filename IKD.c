@@ -16,10 +16,10 @@
 
 uint_least8_t tank_max_frames = 16;
 
-int btnPrev = 0;     // Previous button
-int btnHeld = 0;     // buttons that are held right now
-int btnPressed = 0;  // buttons that were pressed this frame
-int btnReleased = 0; // buttons that were released this frame
+int tank1Prev = 0;     // Previous button
+int tank1Held = 0;     // buttons that are held right now
+int tank1Pressed = 0;  // buttons that were pressed this frame
+int tank1Released = 0; // buttons that were released this frame
 
 float angles[] = {0,   23,  45,  68,  90,  113, 135, 158,
                   180, 203, 225, 248, 270, 293, 315, 338};
@@ -109,11 +109,11 @@ void processControls(void) {
   ClearVram();                               // wipe screen each frame
   MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); // position tank 1 sprite
   MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 1 sprite
-  btnHeld = ReadJoypad(0); // read in our player one joypad input
-  btnPressed = btnHeld & (btnHeld ^ btnPrev);
+  tank1Held = ReadJoypad(0); // read in our player one joypad input
+  tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
   // btnReleased = btnPrev & (btnHeld ^ btnPrev);
 
-  if (btnPressed & BTN_RIGHT) {
+  if (tank1Pressed & BTN_RIGHT) {
     p1_tank.angle++; // move forward to next animation frame
 
     if (p1_tank.angle == tank_max_frames) {
@@ -123,11 +123,9 @@ void processControls(void) {
         tank1_sprites[p1_tank.angle]; // change our tracking variable to the
                                       // correct sprite based on the tanks angle
     processTrig();
-    MapSprite2(
-        0, tank1_current_sprite,
-        0); // actually reassign the sprites in memory to the correct images
+    MapSprite2(0, tank1_current_sprite,0);
   }
-  if (btnPressed & BTN_LEFT) {
+  if (tank1Pressed & BTN_LEFT) {
     if (p1_tank.angle == 0) {
       p1_tank.angle = 15;
     } else {
@@ -137,11 +135,9 @@ void processControls(void) {
         tank1_sprites[p1_tank.angle]; // change our tracking variable to the
                                       // correct sprite based on the angle
     processTrig();
-    MapSprite2(
-        0, tank1_current_sprite,
-        0); // actually reassign the sprites in memory to the correct images
+    MapSprite2(0, tank1_current_sprite,0);
   }
-  if (btnPressed & BTN_A) {
+  if (tank1Pressed & BTN_A) {
     if (p1_bullet.active == false) {
       p1_bullet.age = 0;
       p1_bullet.x = p1_tank.x;
@@ -152,7 +148,7 @@ void processControls(void) {
       TriggerFx(0, 0xFF, true);
     }
   }
-  if (btnHeld & BTN_UP) {
+  if (tank1Held & BTN_UP) {
     p1_tank.x += p1_bullet.vX / 2;
     if (p1_tank.x < 0) {
         p1_tank.x += 1;
@@ -169,7 +165,7 @@ void processControls(void) {
     }
     MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1);
   }
-  btnPrev = btnHeld;
+  tank1Prev = tank1Held;
 }
 
 void processBullet(void) {
