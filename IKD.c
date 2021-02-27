@@ -33,6 +33,7 @@ const char *tank2_sprites[16] = {tank2_000, tank2_023, tank2_045, tank2_068,
                                  tank2_090, tank2_113, tank2_135, tank2_158,
                                  tank2_180, tank2_203, tank2_225, tank2_248,
                                  tank2_270, tank2_293, tank2_315, tank2_338};
+                                 
 const char *tank1_current_sprite, *tank2_current_sprite;
 
 struct bulletStruct {
@@ -59,9 +60,6 @@ void processTrig(void);
 void processBullet(void);
 void processControls(void);
 
-/**
- * \brief The main game loop. This just cycles endlessly.
- */
 int main() {
   // some basic prep work
   initIKD();
@@ -74,9 +72,6 @@ int main() {
   }
 }
 
-/**
- * \brief Initialize various things
- */
 void initIKD(void) {
   InitMusicPlayer(patches);
   SetSpritesTileTable(tileset); // sets the tiles to be used for our various sprites
@@ -102,26 +97,20 @@ void initIKD(void) {
   p2_bullet.age = 0;
 }
 
-/**
- * \processes controller input
- */
 void processControls(void) {
   ClearVram();                               // wipe screen each frame
   MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); // position tank 1 sprite
-  MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 1 sprite
+  MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 2 sprite
   tank1Held = ReadJoypad(0); // read in our player one joypad input
   tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
-  // btnReleased = btnPrev & (btnHeld ^ btnPrev);
+  // tank1Released = tank1Prev & (tank1Held ^ tank1Prev);
 
   if (tank1Pressed & BTN_RIGHT) {
     p1_tank.angle++; // move forward to next animation frame
-
     if (p1_tank.angle == tank_max_frames) {
       p1_tank.angle = 0;
     }
-    tank1_current_sprite =
-        tank1_sprites[p1_tank.angle]; // change our tracking variable to the
-                                      // correct sprite based on the tanks angle
+    tank1_current_sprite = tank1_sprites[p1_tank.angle];
     processTrig();
     MapSprite2(0, tank1_current_sprite,0);
   }
@@ -131,9 +120,7 @@ void processControls(void) {
     } else {
       p1_tank.angle--; // move back to previous animation frame
     }
-    tank1_current_sprite =
-        tank1_sprites[p1_tank.angle]; // change our tracking variable to the
-                                      // correct sprite based on the angle
+    tank1_current_sprite = tank1_sprites[p1_tank.angle];
     processTrig();
     MapSprite2(0, tank1_current_sprite,0);
   }
@@ -169,7 +156,7 @@ void processControls(void) {
 }
 
 void processBullet(void) {
-  if (p1_bullet.active == true && p1_bullet.age < 50) {
+  if (p1_bullet.active == true && p1_bullet.age < 60) {
         p1_bullet.age++;
         p1_bullet.x += p1_bullet.vX * 3;
         p1_bullet.y += p1_bullet.vY * 3;
