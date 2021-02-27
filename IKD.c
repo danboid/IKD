@@ -14,8 +14,6 @@
 #include "data/sfx.inc"
 #include "data/tileset.inc"
 
-uint_least8_t tank1_max_frames = 16;
-
 int tank1Prev = 0;     // Previous button
 int tank1Held = 0;     // buttons that are held right now
 int tank1Pressed = 0;  // buttons that were pressed this frame
@@ -73,9 +71,10 @@ int main() {
   while (1) {
     // wait until the next frame
     WaitVsync(1);
-    processBullet();
+    ClearVram(); // wipe screen each frame
     processTank1();
     processTank2();
+    processBullet();
   }
 }
 
@@ -105,15 +104,13 @@ void initIKD(void) {
 }
 
 void processTank1(void) {
-  ClearVram();                               // wipe screen each frame
   MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); // position tank 1 sprite
   tank1Held = ReadJoypad(0); // read in our player one joypad input
   tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
-  // tank1Released = tank1Prev & (tank1Held ^ tank1Prev);
   
   if (tank1Pressed & BTN_RIGHT) {
     p1_tank.angle++; // move forward to next animation frame
-    if (p1_tank.angle == tank1_max_frames) {
+    if (p1_tank.angle == 16) {
       p1_tank.angle = 0;
     }
     tank1_current_sprite = tank1_sprites[p1_tank.angle];
@@ -165,11 +162,10 @@ void processTank2(void) {
   MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 2 sprite
   tank2Held = ReadJoypad(1); // read player 2 input
   tank2Pressed = tank2Held & (tank2Held ^ tank2Prev);
-  // tank1Released = tank1Prev & (tank1Held ^ tank1Prev);
 
   if (tank2Pressed & BTN_RIGHT) {
     p2_tank.angle++; // move forward to next animation frame
-      if (p2_tank.angle == tank1_max_frames) {
+      if (p2_tank.angle == 16) {
       p2_tank.angle = 0;
     }
     tank2_current_sprite = tank2_sprites[p2_tank.angle];
