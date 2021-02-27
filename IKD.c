@@ -14,12 +14,17 @@
 #include "data/sfx.inc"
 #include "data/tileset.inc"
 
-uint_least8_t tank_max_frames = 16;
+uint_least8_t tank1_max_frames = 16;
 
 int tank1Prev = 0;     // Previous button
 int tank1Held = 0;     // buttons that are held right now
 int tank1Pressed = 0;  // buttons that were pressed this frame
 int tank1Released = 0; // buttons that were released this frame
+
+int tank2Prev = 0;
+int tank2Held = 0;
+int tank2Pressed = 0;
+int tank2Released = 0;
 
 float angles[] = {0,   23,  45,  68,  90,  113, 135, 158,
                   180, 203, 225, 248, 270, 293, 315, 338};
@@ -58,7 +63,8 @@ struct tankStruct p1_tank, p2_tank;
 void initIKD(void);
 void processTrig(void);
 void processBullet(void);
-void processControls(void);
+void processTank1(void);
+void processTank2(void);
 
 int main() {
   // some basic prep work
@@ -68,7 +74,8 @@ int main() {
     // wait until the next frame
     WaitVsync(1);
     processBullet();
-    processControls();
+    processTank1();
+    processTank2();
   }
 }
 
@@ -97,17 +104,16 @@ void initIKD(void) {
   p2_bullet.age = 0;
 }
 
-void processControls(void) {
+void processTank1(void) {
   ClearVram();                               // wipe screen each frame
   MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); // position tank 1 sprite
-  MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 2 sprite
   tank1Held = ReadJoypad(0); // read in our player one joypad input
   tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
   // tank1Released = tank1Prev & (tank1Held ^ tank1Prev);
-
+  
   if (tank1Pressed & BTN_RIGHT) {
     p1_tank.angle++; // move forward to next animation frame
-    if (p1_tank.angle == tank_max_frames) {
+    if (p1_tank.angle == tank1_max_frames) {
       p1_tank.angle = 0;
     }
     tank1_current_sprite = tank1_sprites[p1_tank.angle];
@@ -155,6 +161,62 @@ void processControls(void) {
   tank1Prev = tank1Held;
 }
 
+void processTank2(void) {
+  MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 2 sprite
+  tank2Held = ReadJoypad(1); // read player 2 input
+  tank2Pressed = tank2Held & (tank2Held ^ tank2Prev);
+  // tank1Released = tank1Prev & (tank1Held ^ tank1Prev);
+
+  if (tank2Pressed & BTN_RIGHT) {
+    p2_tank.angle++; // move forward to next animation frame
+      if (p2_tank.angle == tank1_max_frames) {
+      p2_tank.angle = 0;
+    }
+    tank2_current_sprite = tank2_sprites[p2_tank.angle];
+    processTrig();
+    MapSprite2(2, tank2_current_sprite,0);
+  }
+  if (tank2Pressed & BTN_LEFT) {
+    if (p2_tank.angle == 0) {
+      p2_tank.angle = 15;
+    } else {
+      p2_tank.angle--; // move back to previous animation frame
+    }
+    tank2_current_sprite = tank2_sprites[p2_tank.angle];
+    processTrig();
+    MapSprite2(2, tank2_current_sprite,0);
+  }
+  if (tank2Pressed & BTN_A) {
+    if (p2_bullet.active == false) {
+      p2_bullet.age = 0;
+      p2_bullet.x = p2_tank.x;
+      p2_bullet.y = p2_tank.y;
+      p2_bullet.active = true;
+      MapSprite2(3, bullet, 0); // map bullet
+      MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
+      TriggerFx(0, 0xFF, true);
+    }
+  }
+  if (tank2Held & BTN_UP) {
+    p2_tank.x += p2_bullet.vX / 2;
+    if (p2_tank.x < 0) {
+        p2_tank.x += 1;
+    }
+    if (p2_tank.x > 220) {
+        p2_tank.x -= 1;
+    }
+    p2_tank.y += p2_bullet.vY / 2;
+    if (p2_tank.y < 0) {
+        p2_tank.y += 1;
+    }
+    if (p2_tank.y > 210) {
+        p2_tank.y -= 1;
+    }
+    MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1);
+  }
+  tank2Prev = tank2Held;
+}
+
 void processBullet(void) {
   if (p1_bullet.active == true && p1_bullet.age < 60) {
         p1_bullet.age++;
@@ -165,9 +227,21 @@ void processBullet(void) {
     p1_bullet.active = false;
     MapSprite2(1, blank, 0);
   }
+  
+  if (p2_bullet.active == true && p2_bullet.age < 60) {
+        p2_bullet.age++;
+        p2_bullet.x += p2_bullet.vX * 3;
+        p2_bullet.y += p2_bullet.vY * 3;
+        MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
+  } else {
+    p2_bullet.active = false;
+    MapSprite2(3, blank, 0);
+  }
 }
 
 void processTrig(void) {
   p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
   p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
+  p2_bullet.vX = sin(2 * M_PI * (angles[p2_tank.angle] / 360));
+  p2_bullet.vY = -cos(2 * M_PI * (angles[p2_tank.angle] / 360));
 }
