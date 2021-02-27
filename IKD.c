@@ -1,8 +1,9 @@
 /** \file   IKD.c
- *  \brief  The main source file for IKD, a Uzebox remake of the tank games in Atari's Combat 
+ *  \brief  A Uzebox remake of the tank games in Atari's Combat 
  *  \author Dan MacDonald 
  *  \date   2020-2021
  */
+
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -31,12 +32,12 @@ const char *tank1_sprites[16] = {tank1_000, tank1_023, tank1_045, tank1_068,
                                  tank1_090, tank1_113, tank1_135, tank1_158,
                                  tank1_180, tank1_203, tank1_225, tank1_248,
                                  tank1_270, tank1_293, tank1_315, tank1_338};
-                                  
+
 const char *tank2_sprites[16] = {tank2_000, tank2_023, tank2_045, tank2_068,
                                  tank2_090, tank2_113, tank2_135, tank2_158,
                                  tank2_180, tank2_203, tank2_225, tank2_248,
                                  tank2_270, tank2_293, tank2_315, tank2_338};
-                                 
+
 const char *tank1_current_sprite, *tank2_current_sprite;
 
 struct bulletStruct {
@@ -60,7 +61,7 @@ struct tankStruct p1_tank, p2_tank;
 
 void initIKD(void);
 void processTrig(void);
-void processBullet(void);
+void processBullets(void);
 void processTank1(void);
 void processTank2(void);
 
@@ -74,29 +75,30 @@ int main() {
     ClearVram(); // wipe screen each frame
     processTank1();
     processTank2();
-    processBullet();
+    processBullets();
   }
 }
 
 void initIKD(void) {
   InitMusicPlayer(patches);
-  SetSpritesTileTable(tileset); // sets the tiles to be used for our various sprites
+  SetSpritesTileTable(
+      tileset);          // sets the tiles to be used for our various sprites
   SetTileTable(tileset); // Tile set to use for ClearVram()
-  ClearVram(); // fill entire screen with first tile in the tileset
-  
+  ClearVram();           // fill entire screen with first tile in the tileset
+
   MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
-  p1_tank.x = 10;    // set tank to the left
-  p1_tank.y = 112;   // center tank vertically
-  p1_tank.angle = 4; // face right
+  p1_tank.x = 10;              // set tank to the left
+  p1_tank.y = 112;             // center tank vertically
+  p1_tank.angle = 4;           // face right
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
   p1_bullet.active = false;
   p1_bullet.age = 0;
-  
+
   MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
-  p2_tank.x = 210;    // set tank to the right
-  p2_tank.y = 112;   // center tank vertically
-  p2_tank.angle = 12; // face left
+  p2_tank.x = 210;             // set tank to the right
+  p2_tank.y = 112;             // center tank vertically
+  p2_tank.angle = 12;          // face left
   p2_bullet.vX = -1;
   p2_bullet.vY = 0;
   p2_bullet.active = false;
@@ -107,7 +109,7 @@ void processTank1(void) {
   MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); // position tank 1 sprite
   tank1Held = ReadJoypad(0); // read in our player one joypad input
   tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
-  
+
   if (tank1Pressed & BTN_RIGHT) {
     p1_tank.angle++; // move forward to next animation frame
     if (p1_tank.angle == 16) {
@@ -115,7 +117,7 @@ void processTank1(void) {
     }
     tank1_current_sprite = tank1_sprites[p1_tank.angle];
     processTrig();
-    MapSprite2(0, tank1_current_sprite,0);
+    MapSprite2(0, tank1_current_sprite, 0);
   }
   if (tank1Pressed & BTN_LEFT) {
     if (p1_tank.angle == 0) {
@@ -125,7 +127,7 @@ void processTank1(void) {
     }
     tank1_current_sprite = tank1_sprites[p1_tank.angle];
     processTrig();
-    MapSprite2(0, tank1_current_sprite,0);
+    MapSprite2(0, tank1_current_sprite, 0);
   }
   if (tank1Pressed & BTN_A) {
     if (p1_bullet.active == false) {
@@ -141,17 +143,17 @@ void processTank1(void) {
   if (tank1Held & BTN_UP) {
     p1_tank.x += p1_bullet.vX / 2;
     if (p1_tank.x < 0) {
-        p1_tank.x += 1;
+      p1_tank.x += 1;
     }
     if (p1_tank.x > 220) {
-        p1_tank.x -= 1;
+      p1_tank.x -= 1;
     }
     p1_tank.y += p1_bullet.vY / 2;
     if (p1_tank.y < 0) {
-        p1_tank.y += 1;
+      p1_tank.y += 1;
     }
     if (p1_tank.y > 210) {
-        p1_tank.y -= 1;
+      p1_tank.y -= 1;
     }
     MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1);
   }
@@ -160,17 +162,17 @@ void processTank1(void) {
 
 void processTank2(void) {
   MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 2 sprite
-  tank2Held = ReadJoypad(1); // read player 2 input
+  tank2Held = ReadJoypad(1);                 // read player 2 input
   tank2Pressed = tank2Held & (tank2Held ^ tank2Prev);
 
   if (tank2Pressed & BTN_RIGHT) {
     p2_tank.angle++; // move forward to next animation frame
-      if (p2_tank.angle == 16) {
+    if (p2_tank.angle == 16) {
       p2_tank.angle = 0;
     }
     tank2_current_sprite = tank2_sprites[p2_tank.angle];
     processTrig();
-    MapSprite2(2, tank2_current_sprite,0);
+    MapSprite2(2, tank2_current_sprite, 0);
   }
   if (tank2Pressed & BTN_LEFT) {
     if (p2_tank.angle == 0) {
@@ -180,7 +182,7 @@ void processTank2(void) {
     }
     tank2_current_sprite = tank2_sprites[p2_tank.angle];
     processTrig();
-    MapSprite2(2, tank2_current_sprite,0);
+    MapSprite2(2, tank2_current_sprite, 0);
   }
   if (tank2Pressed & BTN_A) {
     if (p2_bullet.active == false) {
@@ -196,39 +198,51 @@ void processTank2(void) {
   if (tank2Held & BTN_UP) {
     p2_tank.x += p2_bullet.vX / 2;
     if (p2_tank.x < 0) {
-        p2_tank.x += 1;
+      p2_tank.x += 1;
     }
     if (p2_tank.x > 220) {
-        p2_tank.x -= 1;
+      p2_tank.x -= 1;
     }
     p2_tank.y += p2_bullet.vY / 2;
     if (p2_tank.y < 0) {
-        p2_tank.y += 1;
+      p2_tank.y += 1;
     }
     if (p2_tank.y > 210) {
-        p2_tank.y -= 1;
+      p2_tank.y -= 1;
     }
     MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1);
   }
   tank2Prev = tank2Held;
 }
 
-void processBullet(void) {
+void processBullets(void) {
   if (p1_bullet.active == true && p1_bullet.age < 60) {
-        p1_bullet.age++;
-        p1_bullet.x += p1_bullet.vX * 3;
-        p1_bullet.y += p1_bullet.vY * 3;
-        MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
+    p1_bullet.age++;
+    p1_bullet.x += p1_bullet.vX * 3;
+    p1_bullet.y += p1_bullet.vY * 3;
+    MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
+    if (p1_bullet.x >= p2_tank.x && p1_bullet.x <= p2_tank.x + 8 &&
+        p1_bullet.y >= p2_tank.y && p1_bullet.y <= p2_tank.y + 8) {
+      p1_bullet.active = false;
+      MapSprite2(1, blank, 0);
+      MapSprite2(2, blank, 0);
+    }
   } else {
     p1_bullet.active = false;
     MapSprite2(1, blank, 0);
   }
-  
+
   if (p2_bullet.active == true && p2_bullet.age < 60) {
-        p2_bullet.age++;
-        p2_bullet.x += p2_bullet.vX * 3;
-        p2_bullet.y += p2_bullet.vY * 3;
-        MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
+    p2_bullet.age++;
+    p2_bullet.x += p2_bullet.vX * 3;
+    p2_bullet.y += p2_bullet.vY * 3;
+    MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
+    if (p2_bullet.x >= p1_tank.x && p2_bullet.x <= p1_tank.x + 8 &&
+        p2_bullet.y >= p1_tank.y && p2_bullet.y <= p1_tank.y + 8) {
+      p2_bullet.active = false;
+      MapSprite2(0, blank, 0);
+      MapSprite2(3, blank, 0);
+    }
   } else {
     p2_bullet.active = false;
     MapSprite2(3, blank, 0);
