@@ -226,6 +226,7 @@ void processBullets(void) {
       p1_bullet.active = false;
       MapSprite2(1, blank, 0);
       MapSprite2(2, blank, 0);
+      TriggerFx(1, 0xFF, true);
     }
   } else {
     p1_bullet.active = false;
@@ -242,6 +243,7 @@ void processBullets(void) {
       p2_bullet.active = false;
       MapSprite2(0, blank, 0);
       MapSprite2(3, blank, 0);
+      TriggerFx(1, 0xFF, true);
     }
   } else {
     p2_bullet.active = false;
