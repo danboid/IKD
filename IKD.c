@@ -188,6 +188,7 @@ void processTank2(void) {
     MapSprite2(2, tank2_current_sprite, 0);
   }
   if (tank2Pressed & BTN_A) {
+      srand((unsigned) seed);
     if (p2_bullet.active == false) {
       p2_bullet.age = 0;
       p2_bullet.x = p2_tank.x;
