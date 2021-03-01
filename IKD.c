@@ -25,6 +25,8 @@ int tank2Held = 0;
 int tank2Pressed = 0;
 int tank2Released = 0;
 
+int seed = 0;
+
 float angles[] = {0,   23,  45,  68,  90,  113, 135, 158,
                   180, 203, 225, 248, 270, 293, 315, 338};
 
@@ -73,6 +75,7 @@ int main() {
     // wait until the next frame
     WaitVsync(1);
     ClearVram(); // wipe screen each frame
+    seed++;
     processTank1();
     processTank2();
     processBullets();
@@ -81,8 +84,7 @@ int main() {
 
 void initIKD(void) {
   InitMusicPlayer(patches);
-  SetSpritesTileTable(
-      tileset);          // sets the tiles to be used for our various sprites
+  SetSpritesTileTable(tileset);
   SetTileTable(tileset); // Tile set to use for ClearVram()
   ClearVram();           // fill entire screen with first tile in the tileset
 
@@ -130,6 +132,7 @@ void processTank1(void) {
     MapSprite2(0, tank1_current_sprite, 0);
   }
   if (tank1Pressed & BTN_A) {
+      srand((unsigned) seed);
     if (p1_bullet.active == false) {
       p1_bullet.age = 0;
       p1_bullet.x = p1_tank.x;
@@ -225,8 +228,15 @@ void processBullets(void) {
         p1_bullet.y >= p2_tank.y && p1_bullet.y <= p2_tank.y + 8) {
       p1_bullet.active = false;
       MapSprite2(1, blank, 0);
-      MapSprite2(2, blank, 0);
       TriggerFx(1, 0xFF, true);
+      p2_tank.x = rand() % 210;
+      p2_tank.y = rand() % 210;
+      p2_tank.angle = rand() % 15;
+      tank2_current_sprite = tank2_sprites[p2_tank.angle];
+      processTrig();
+      MapSprite2(2, tank2_current_sprite, 0);
+      p2_bullet.active = false;
+      p2_bullet.age = 0;
     }
   } else {
     p1_bullet.active = false;
@@ -241,9 +251,16 @@ void processBullets(void) {
     if (p2_bullet.x >= p1_tank.x && p2_bullet.x <= p1_tank.x + 8 &&
         p2_bullet.y >= p1_tank.y && p2_bullet.y <= p1_tank.y + 8) {
       p2_bullet.active = false;
-      MapSprite2(0, blank, 0);
       MapSprite2(3, blank, 0);
       TriggerFx(1, 0xFF, true);
+      p1_tank.x = rand() % 210;
+      p1_tank.y = rand() % 210;
+      p1_tank.angle = rand() % 15;
+      tank1_current_sprite = tank1_sprites[p1_tank.angle];
+      processTrig();
+      MapSprite2(0, tank1_current_sprite, 0);
+      p1_bullet.active = false;
+      p1_bullet.age = 0;
     }
   } else {
     p2_bullet.active = false;
