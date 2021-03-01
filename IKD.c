@@ -1,6 +1,8 @@
 /** \file   IKD.c
- *  \brief  A Uzebox remake of the tank games in Atari's Combat 
- *  \author Dan MacDonald 
+ *  \brief  A Uzebox remake of the tank games in Atari's Combat
+ *  \author Dan MacDonald
+ *          Score drawing code borrowed from Bradley Boccuzzi's
+ *          Uzebox port of Pong
  *  \date   2020-2021
  */
 
@@ -42,6 +44,10 @@ const char *tank2_sprites[16] = {tank2_000, tank2_023, tank2_045, tank2_068,
 
 const char *tank1_current_sprite, *tank2_current_sprite;
 
+int Score[2] = {0, 0};
+
+const char *numbers[10] = {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9};
+
 struct bulletStruct {
   float x;
   float y;
@@ -66,6 +72,7 @@ void processTrig(void);
 void processBullets(void);
 void processTank1(void);
 void processTank2(void);
+void processScore(void);
 
 int main() {
   // some basic prep work
@@ -79,6 +86,7 @@ int main() {
     processTank1();
     processTank2();
     processBullets();
+    processScore();
   }
 }
 
@@ -87,6 +95,8 @@ void initIKD(void) {
   SetSpritesTileTable(tileset);
   SetTileTable(tileset); // Tile set to use for ClearVram()
   ClearVram();           // fill entire screen with first tile in the tileset
+  Score[0] = 0;
+  Score[1] = 0;
 
   MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
   p1_tank.x = 10;              // set tank to the left
@@ -132,7 +142,7 @@ void processTank1(void) {
     MapSprite2(0, tank1_current_sprite, 0);
   }
   if (tank1Pressed & BTN_A) {
-      srand((unsigned) seed);
+    srand((unsigned)seed);
     if (p1_bullet.active == false) {
       p1_bullet.age = 0;
       p1_bullet.x = p1_tank.x;
@@ -188,7 +198,7 @@ void processTank2(void) {
     MapSprite2(2, tank2_current_sprite, 0);
   }
   if (tank2Pressed & BTN_A) {
-      srand((unsigned) seed);
+    srand((unsigned)seed);
     if (p2_bullet.active == false) {
       p2_bullet.age = 0;
       p2_bullet.x = p2_tank.x;
@@ -230,6 +240,8 @@ void processBullets(void) {
       p1_bullet.active = false;
       MapSprite2(1, blank, 0);
       TriggerFx(1, 0xFF, true);
+      Score[0]++;
+
       p2_tank.x = rand() % 210;
       p2_tank.y = rand() % 210;
       p2_tank.angle = rand() % 15;
@@ -254,6 +266,8 @@ void processBullets(void) {
       p2_bullet.active = false;
       MapSprite2(3, blank, 0);
       TriggerFx(1, 0xFF, true);
+      Score[1]++;
+
       p1_tank.x = rand() % 210;
       p1_tank.y = rand() % 210;
       p1_tank.angle = rand() % 15;
@@ -274,4 +288,9 @@ void processTrig(void) {
   p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
   p2_bullet.vX = sin(2 * M_PI * (angles[p2_tank.angle] / 360));
   p2_bullet.vY = -cos(2 * M_PI * (angles[p2_tank.angle] / 360));
+}
+
+void processScore(void) {
+  DrawMap2(5, 0, (numbers[Score[0]]));
+  DrawMap2(20, 0, (numbers[Score[1]]));
 }
