@@ -243,6 +243,9 @@ void processBullets(void) {
       MapSprite2(1, blank, 0);
       TriggerFx(1, 0xFF, true);
       Score[0]++;
+      if (Score[0] > 9) {
+          Score[0] = 0;
+      }
 
       p2_tank.x = rand() % 210;
       p2_tank.y = rand() % 210;
@@ -269,6 +272,9 @@ void processBullets(void) {
       MapSprite2(3, blank, 0);
       TriggerFx(1, 0xFF, true);
       Score[1]++;
+      if (Score[1] > 9) {
+          Score[1] = 0;
+      }
 
       p1_tank.x = rand() % 210;
       p1_tank.y = rand() % 210;
