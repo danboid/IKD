@@ -48,6 +48,8 @@ int Score[2] = {0, 0};
 
 const char *numbers[10] = {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9};
 
+const char *numbers2[10] = {sc0, sc1, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9};
+
 struct bulletStruct {
   float x;
   float y;
@@ -292,5 +294,5 @@ void processTrig(void) {
 
 void processScore(void) {
   DrawMap2(5, 0, (numbers[Score[0]]));
-  DrawMap2(20, 0, (numbers[Score[1]]));
+  DrawMap2(20, 0, (numbers2[Score[1]]));
 }
