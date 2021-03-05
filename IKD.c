@@ -83,7 +83,6 @@ int main() {
   while (1) {
     // wait until the next frame
     WaitVsync(1);
-    ClearVram(); // wipe screen each frame
     seed++;
     processTank1();
     processTank2();
