@@ -301,4 +301,5 @@ void processTrig(void) {
 void processScore(void) {
   DrawMap2(5, 0, (numbers[Score[0]]));
   DrawMap2(20, 0, (numbers2[Score[1]]));
+  DrawMap2(-1, 5, maze1);
 }
