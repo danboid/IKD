@@ -101,7 +101,7 @@ void initIKD(void) {
 
   MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
   p1_tank.x = 5;              // set tank to the left
-  p1_tank.y = 122;             // center tank vertically
+  p1_tank.y = 85;             // center tank vertically
   p1_tank.angle = 4;           // face right
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
@@ -110,7 +110,7 @@ void initIKD(void) {
 
   MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
   p2_tank.x = 210;             // set tank to the right
-  p2_tank.y = 122;             // center tank vertically
+  p2_tank.y = 85;             // center tank vertically
   p2_tank.angle = 12;          // face left
   p2_bullet.vX = -1;
   p2_bullet.vY = 0;
@@ -298,7 +298,7 @@ void processTrig(void) {
 }
 
 void processScore(void) {
-  DrawMap2(6, 0, (numbers[Score[0]]));
-  DrawMap2(18, 0, (numbers2[Score[1]]));
-  DrawMap2(0, 5, maze1);
+  DrawMap2(6, 22, (numbers[Score[0]]));
+  DrawMap2(18, 22, (numbers2[Score[1]]));
+  DrawMap2(0, 0, maze1);
 }
