@@ -165,6 +165,18 @@ void processTank1(void) {
     p1_tank.top += p1_bullet.vY / 2;
     p1_tank.right = p1_tank.left + 8;
     p1_tank.bottom = p1_tank.top + 8;
+    if (p1_tank.left < 0) {
+      p1_tank.left += 1;
+    }
+    if (p1_tank.left > 215) {
+      p1_tank.left -= 1;
+    }
+    if (p1_tank.top < 0) {
+      p1_tank.top += 1;
+    }
+    if (p1_tank.top > 170) {
+      p1_tank.top -= 1;
+    }
     MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
   }
   tank1Prev = tank1Held;
@@ -211,6 +223,18 @@ void processTank2(void) {
     p2_tank.top += p2_bullet.vY / 2;
     p2_tank.right = p2_tank.left + 8;
     p2_tank.bottom = p2_tank.top + 8;
+    if (p2_tank.left < 0) {
+      p2_tank.left += 1;
+    }
+    if (p2_tank.left > 215) {
+      p2_tank.left -= 1;
+    }
+    if (p2_tank.top < 0) {
+      p2_tank.top += 1;
+    }
+    if (p2_tank.top > 170) {
+      p2_tank.top -= 1;
+    }
     MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
   }
   tank2Prev = tank2Held;
