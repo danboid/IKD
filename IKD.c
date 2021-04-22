@@ -62,8 +62,10 @@ struct bulletStruct {
 struct bulletStruct p1_bullet, p2_bullet;
 
 struct tankStruct {
-  float x;
-  float y;
+  float top;
+  float bottom;
+  float left;
+  float right;
   int angle;
 };
 
@@ -100,8 +102,10 @@ void initIKD(void) {
   Score[1] = 0;
 
   MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
-  p1_tank.x = 5;              // set tank to the left
-  p1_tank.y = 85;             // center tank vertically
+  p1_tank.left = 5;              // set tank to the left
+  p1_tank.top = 85;             // center tank vertically
+  p1_tank.right = 13;
+  p1_tank.bottom = 93;
   p1_tank.angle = 4;           // face right
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
@@ -109,8 +113,10 @@ void initIKD(void) {
   p1_bullet.age = 0;
 
   MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
-  p2_tank.x = 210;             // set tank to the right
-  p2_tank.y = 85;             // center tank vertically
+  p2_tank.left = 210;             // set tank to the right
+  p2_tank.top = 85;             // center tank vertically
+  p1_tank.right = 218;
+  p1_tank.bottom = 93;
   p2_tank.angle = 12;          // face left
   p2_bullet.vX = -1;
   p2_bullet.vY = 0;
@@ -119,7 +125,7 @@ void initIKD(void) {
 }
 
 void processTank1(void) {
-  MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1); // position tank 1 sprite
+  MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1); // position tank 1 sprite
   tank1Held = ReadJoypad(0); // read in our player one joypad input
   tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
 
@@ -146,8 +152,8 @@ void processTank1(void) {
     srand((unsigned)seed);
     if (p1_bullet.active == false) {
       p1_bullet.age = 0;
-      p1_bullet.x = p1_tank.x;
-      p1_bullet.y = p1_tank.y;
+      p1_bullet.x = p1_tank.left;
+      p1_bullet.y = p1_tank.top;
       p1_bullet.active = true;
       MapSprite2(1, bullet, 0); // map bullet
       MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
@@ -155,27 +161,17 @@ void processTank1(void) {
     }
   }
   if (tank1Held & BTN_UP) {
-    p1_tank.x += p1_bullet.vX / 2;
-    if (p1_tank.x < 0) {
-      p1_tank.x += 1;
-    }
-    if (p1_tank.x > 220) {
-      p1_tank.x -= 1;
-    }
-    p1_tank.y += p1_bullet.vY / 2;
-    if (p1_tank.y < 0) {
-      p1_tank.y += 1;
-    }
-    if (p1_tank.y > 210) {
-      p1_tank.y -= 1;
-    }
-    MoveSprite(0, p1_tank.x, p1_tank.y, 1, 1);
+    p1_tank.left += p1_bullet.vX / 2;
+    p1_tank.top += p1_bullet.vY / 2;
+    p1_tank.right = p1_tank.left + 8;
+    p1_tank.bottom = p1_tank.top + 8;
+    MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
   }
   tank1Prev = tank1Held;
 }
 
 void processTank2(void) {
-  MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1); // position tank 2 sprite
+  MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1); // position tank 2 sprite
   tank2Held = ReadJoypad(1);                 // read player 2 input
   tank2Pressed = tank2Held & (tank2Held ^ tank2Prev);
 
@@ -202,8 +198,8 @@ void processTank2(void) {
     srand((unsigned)seed);
     if (p2_bullet.active == false) {
       p2_bullet.age = 0;
-      p2_bullet.x = p2_tank.x;
-      p2_bullet.y = p2_tank.y;
+      p2_bullet.x = p2_tank.left;
+      p2_bullet.y = p2_tank.top;
       p2_bullet.active = true;
       MapSprite2(3, bullet, 0); // map bullet
       MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
@@ -211,21 +207,11 @@ void processTank2(void) {
     }
   }
   if (tank2Held & BTN_UP) {
-    p2_tank.x += p2_bullet.vX / 2;
-    if (p2_tank.x < 0) {
-      p2_tank.x += 1;
-    }
-    if (p2_tank.x > 220) {
-      p2_tank.x -= 1;
-    }
-    p2_tank.y += p2_bullet.vY / 2;
-    if (p2_tank.y < 0) {
-      p2_tank.y += 1;
-    }
-    if (p2_tank.y > 210) {
-      p2_tank.y -= 1;
-    }
-    MoveSprite(2, p2_tank.x, p2_tank.y, 1, 1);
+    p2_tank.left += p2_bullet.vX / 2;
+    p2_tank.top += p2_bullet.vY / 2;
+    p2_tank.right = p2_tank.left + 8;
+    p2_tank.bottom = p2_tank.top + 8;
+    MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
   }
   tank2Prev = tank2Held;
 }
@@ -236,8 +222,8 @@ void processBullets(void) {
     p1_bullet.x += p1_bullet.vX * 3;
     p1_bullet.y += p1_bullet.vY * 3;
     MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
-    if (p1_bullet.x >= p2_tank.x && p1_bullet.x <= p2_tank.x + 8 &&
-        p1_bullet.y >= p2_tank.y && p1_bullet.y <= p2_tank.y + 8) {
+    if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= p2_tank.left + 8 &&
+        p1_bullet.y >= p2_tank.top && p1_bullet.y <= p2_tank.top + 8) {
       p1_bullet.active = false;
       MapSprite2(1, blank, 0);
       TriggerFx(1, 0xFF, true);
@@ -246,8 +232,8 @@ void processBullets(void) {
           Score[0] = 0;
       }
 
-      p2_tank.x = rand() % 210;
-      p2_tank.y = rand() % 210;
+      p2_tank.left = rand() % 210;
+      p2_tank.top = rand() % 210;
       p2_tank.angle = rand() % 15;
       tank2_current_sprite = tank2_sprites[p2_tank.angle];
       processTrig();
@@ -265,8 +251,8 @@ void processBullets(void) {
     p2_bullet.x += p2_bullet.vX * 3;
     p2_bullet.y += p2_bullet.vY * 3;
     MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
-    if (p2_bullet.x >= p1_tank.x && p2_bullet.x <= p1_tank.x + 8 &&
-        p2_bullet.y >= p1_tank.y && p2_bullet.y <= p1_tank.y + 8) {
+    if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= p1_tank.left + 8 &&
+        p2_bullet.y >= p1_tank.top && p2_bullet.y <= p1_tank.top + 8) {
       p2_bullet.active = false;
       MapSprite2(3, blank, 0);
       TriggerFx(1, 0xFF, true);
@@ -275,8 +261,8 @@ void processBullets(void) {
           Score[1] = 0;
       }
 
-      p1_tank.x = rand() % 210;
-      p1_tank.y = rand() % 210;
+      p1_tank.left = rand() % 210;
+      p1_tank.top = rand() % 210;
       p1_tank.angle = rand() % 15;
       tank1_current_sprite = tank1_sprites[p1_tank.angle];
       processTrig();
