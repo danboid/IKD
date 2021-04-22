@@ -115,8 +115,8 @@ void initIKD(void) {
   MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
   p2_tank.left = 210;             // set tank to the right
   p2_tank.top = 85;             // center tank vertically
-  p1_tank.right = 218;
-  p1_tank.bottom = 93;
+  p2_tank.right = 218;
+  p2_tank.bottom = 93;
   p2_tank.angle = 12;          // face left
   p2_bullet.vX = -1;
   p2_bullet.vY = 0;
@@ -222,8 +222,8 @@ void processBullets(void) {
     p1_bullet.x += p1_bullet.vX * 3;
     p1_bullet.y += p1_bullet.vY * 3;
     MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
-    if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= p2_tank.left + 8 &&
-        p1_bullet.y >= p2_tank.top && p1_bullet.y <= p2_tank.top + 8) {
+    if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= p2_tank.right &&
+        p1_bullet.y >= p2_tank.top && p1_bullet.y <= p2_tank.bottom) {
       p1_bullet.active = false;
       MapSprite2(1, blank, 0);
       TriggerFx(1, 0xFF, true);
@@ -234,6 +234,8 @@ void processBullets(void) {
 
       p2_tank.left = rand() % 210;
       p2_tank.top = rand() % 210;
+      p2_tank.right = p2_tank.left + 8;
+      p2_tank.bottom = p2_tank.top + 8;
       p2_tank.angle = rand() % 15;
       tank2_current_sprite = tank2_sprites[p2_tank.angle];
       processTrig();
@@ -251,8 +253,8 @@ void processBullets(void) {
     p2_bullet.x += p2_bullet.vX * 3;
     p2_bullet.y += p2_bullet.vY * 3;
     MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
-    if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= p1_tank.left + 8 &&
-        p2_bullet.y >= p1_tank.top && p2_bullet.y <= p1_tank.top + 8) {
+    if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= p1_tank.right &&
+        p2_bullet.y >= p1_tank.top && p2_bullet.y <= p1_tank.bottom) {
       p2_bullet.active = false;
       MapSprite2(3, blank, 0);
       TriggerFx(1, 0xFF, true);
@@ -263,6 +265,8 @@ void processBullets(void) {
 
       p1_tank.left = rand() % 210;
       p1_tank.top = rand() % 210;
+      p1_tank.right = p1_tank.left + 8;
+      p1_tank.bottom = p1_tank.top + 8;
       p1_tank.angle = rand() % 15;
       tank1_current_sprite = tank1_sprites[p1_tank.angle];
       processTrig();
