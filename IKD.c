@@ -66,6 +66,8 @@ struct tankStruct {
   float bottom;
   float left;
   float right;
+  float oldtop;
+  float oldleft;
   int angle;
 };
 
@@ -77,6 +79,18 @@ void processBullets(void);
 void processTank1(void);
 void processTank2(void);
 void processScore(void);
+
+struct tileStruct {
+  int top;
+  int bottom;
+  int left;
+  int right;
+  bool x_overlaps;
+  bool y_overlaps;
+  bool collision;
+};
+
+struct tileStruct p1_tile, p2_tile;
 
 int main() {
   // some basic prep work
@@ -161,23 +175,40 @@ void processTank1(void) {
     }
   }
   if (tank1Held & BTN_UP) {
-    p1_tank.left += p1_bullet.vX / 2;
-    p1_tank.top += p1_bullet.vY / 2;
-    p1_tank.right = p1_tank.left + 8;
-    p1_tank.bottom = p1_tank.top + 8;
-    if (p1_tank.left < 0) {
-      p1_tank.left += 1;
-    }
-    if (p1_tank.left > 215) {
-      p1_tank.left -= 1;
-    }
-    if (p1_tank.top < 0) {
-      p1_tank.top += 1;
-    }
-    if (p1_tank.top > 170) {
-      p1_tank.top -= 1;
-    }
-    MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
+      p1_tank.oldtop = p1_tank.top;
+      p1_tank.oldleft = p1_tank.left;
+      p1_tank.left += p1_bullet.vX / 2;
+      p1_tank.top += p1_bullet.vY / 2;
+      p1_tank.right = p1_tank.left + 8;
+      p1_tank.bottom = p1_tank.top + 8;
+      for (int i = 0; i < 616; i++)
+      {
+          p1_tile.x_overlaps = false;
+          p1_tile.y_overlaps = false;
+          p1_tile.collision = false;
+          if ( vram[i] == RAM_TILES_COUNT + 37) {
+              if ( i < 28 ) {
+                  p1_tile.left = i * 8;
+              }
+              if ( i > 28 ) {
+                  p1_tile.left = (i % 28) * 8;
+              }
+              p1_tile.top = (i / 28) * 8;
+              p1_tile.right = p1_tile.left + 8;
+              p1_tile.bottom = p1_tile.top + 8;
+              p1_tile.x_overlaps = (p1_tank.left < p1_tile.right) && (p1_tank.right > p1_tile.left);
+              p1_tile.y_overlaps = (p1_tank.top < p1_tile.bottom) && (p1_tank.bottom > p1_tile.top);
+              p1_tile.collision = p1_tile.x_overlaps && p1_tile.y_overlaps;
+              if (p1_tile.collision)
+              {
+                  p1_tank.top = p1_tank.oldtop;
+                  p1_tank.left = p1_tank.oldleft;
+                  p1_tank.right = p1_tank.left + 8;
+                  p1_tank.bottom = p1_tank.top + 8;
+              }
+          }
+      }
+      MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
   }
   tank1Prev = tank1Held;
 }
