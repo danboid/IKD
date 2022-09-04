@@ -17,6 +17,9 @@
 #include "data/sfx.inc"
 #include "data/tileset.inc"
 
+#define UZEMH _SFR_IO8(25)
+#define UZEMC _SFR_IO8(26)
+
 int tank1Prev = 0;     // Previous button
 int tank1Held = 0;     // buttons that are held right now
 int tank1Pressed = 0;  // buttons that were pressed this frame
@@ -77,6 +80,17 @@ void processBullets(void);
 void processTank1(void);
 void processTank2(void);
 void processScore(void);
+void whisperConsole(char str[]);
+
+// whisperConsole() can be used to print debug strings to the cuzebox console
+void whisperConsole(char str[]) {
+  for (int i = 0; str[i] != '\0'; i++) {
+    if (str[i] != ' ') { // not a white space
+      _SFR_IO8(0X1a)=str[i];
+    }
+  }
+  _SFR_IO8(0X1a)='\n'; // Add newline after last character
+}
 
 int main() {
   // some basic prep work
