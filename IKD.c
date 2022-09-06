@@ -1,9 +1,9 @@
 /** \file   IKD.c
- *  \brief  A Uzebox remake of the tank games in Atari's Combat
+ *  \brief  A Uzebox remake of the tank game in Atari's Combat.
  *  \author Dan MacDonald
  *          Score drawing code borrowed from Bradley Boccuzzi's
- *          Uzebox port of Pong
- *  \date   2020-2021
+ *          Uzebox port of Pong.
+ *  \date   2020-2022
  */
 
 
@@ -14,11 +14,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <uzebox.h>
+
 #include "data/sfx.inc"
 #include "data/tileset.inc"
-
-#define UZEMH _SFR_IO8(25)
-#define UZEMC _SFR_IO8(26)
 
 int tank1Prev = 0;     // Previous button
 int tank1Held = 0;     // buttons that are held right now
@@ -80,16 +78,23 @@ void processBullets(void);
 void processTank1(void);
 void processTank2(void);
 void processScore(void);
-void whisperConsole(char str[]);
+void processMaze1(void);
+void cuzeboxCOut(char str[]);
+void cuzeboxHOut(int num);
 
-// whisperConsole() can be used to print debug strings to the cuzebox console
-void whisperConsole(char str[]) {
+// cuzeboxCOut() is used to print debug strings to the cuzebox console.
+void cuzeboxCOut(char str[]) {
   for (int i = 0; str[i] != '\0'; i++) {
-    if (str[i] != ' ') { // not a white space
-      _SFR_IO8(0X1a)=str[i];
-    }
+        _SFR_IO8(0X1a)=str[i];
   }
   _SFR_IO8(0X1a)='\n'; // Add newline after last character
+}
+
+// cuzeboxHOut() is used to print a hex value to the cuzebox console.
+// eg cuzeboxHOut(GetTile(2,8));
+void cuzeboxHOut(int num) {
+  _SFR_IO8(25)=num;
+  _SFR_IO8(0X1a)='\n'; // Add newline
 }
 
 int main() {
@@ -104,6 +109,7 @@ int main() {
     processTank2();
     processBullets();
     processScore();
+    processMaze1();
   }
 }
 
@@ -112,6 +118,7 @@ void initIKD(void) {
   SetSpritesTileTable(tileset);
   SetTileTable(tileset); // Tile set to use for ClearVram()
   ClearVram();           // fill entire screen with first tile in the tileset
+
   Score[0] = 0;
   Score[1] = 0;
 
@@ -328,5 +335,8 @@ void processTrig(void) {
 void processScore(void) {
   DrawMap2(6, 22, (numbers[Score[0]]));
   DrawMap2(18, 22, (numbers2[Score[1]]));
+}
+
+void processMaze1(void) {
   DrawMap2(0, 0, maze1);
 }
