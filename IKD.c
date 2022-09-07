@@ -63,11 +63,13 @@ struct bulletStruct {
 struct bulletStruct p1_bullet, p2_bullet;
 
 struct tankStruct {
-  float top;
+  float top;     // Top corner of the sprite in pixels
   float bottom;
   float left;
   float right;
   int angle;
+  int x;    // Current 8x8 pixel tile horizontal grid position, starting from the left
+  int y;    // Vertical tile position, starting from the top of the screen
 };
 
 struct tankStruct p1_tank, p2_tank;
@@ -128,6 +130,8 @@ void initIKD(void) {
   p1_tank.right = 13;
   p1_tank.bottom = 93;
   p1_tank.angle = 4;           // face right
+  p1_tank.x = 0;
+  p1_tank.y = 10;
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
   p1_bullet.active = false;
@@ -199,6 +203,9 @@ void processTank1(void) {
       p1_tank.top -= 1;
     }
     MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
+    // Update tanks position on the tile grid
+    p1_tank.x = p1_tank.left / 8;
+    p1_tank.y = p1_tank.top / 8;
   }
   tank1Prev = tank1Held;
 }
