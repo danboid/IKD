@@ -3,7 +3,7 @@
  *  \author Dan MacDonald
  *          Score drawing code borrowed from Bradley Boccuzzi's
  *          Uzebox port of Pong.
- *  \date   2020-2022
+ *  \date   2022
  */
 
 
@@ -67,9 +67,10 @@ struct tankStruct {
   float bottom;
   float left;
   float right;
-  int angle;
-  int x;    // Current 8x8 pixel tile horizontal grid position, starting from the left
-  int y;    // Vertical tile position, starting from the top of the screen
+  int angle;     // Which direction is the tank facing? 0 = up/north, 4 = right/east
+  int x;         // Current 8x8 pixel tile horizontal grid position, starting from the left
+  int y;         // Vertical tile position, starting from the top of the screen
+  bool advance;  // Can the tank move forward in its current location and angle?
 };
 
 struct tankStruct p1_tank, p2_tank;
@@ -83,6 +84,7 @@ void processTank2(void);
 void processScore(void);
 void cuzeboxCOut(char str[]);
 void cuzeboxHOut(int num);
+void wallTankCollision(void);
 
 // cuzeboxCOut() is used to print debug strings to the cuzebox console.
 void cuzeboxCOut(char str[]) {
@@ -138,6 +140,7 @@ void processTank1(void) {
     tank1_current_sprite = tank1_sprites[p1_tank.angle];
     processTrig();
     MapSprite2(0, tank1_current_sprite, 0);
+    wallTankCollision();
   }
   if (tank1Pressed & BTN_LEFT) {
     if (p1_tank.angle == 0) {
@@ -148,6 +151,7 @@ void processTank1(void) {
     tank1_current_sprite = tank1_sprites[p1_tank.angle];
     processTrig();
     MapSprite2(0, tank1_current_sprite, 0);
+    wallTankCollision();
   }
   if (tank1Pressed & BTN_A) {
     srand((unsigned)seed);
@@ -162,26 +166,15 @@ void processTank1(void) {
     }
   }
   if (tank1Held & BTN_UP) {
+    if (p1_tank.advance == true) {
     p1_tank.left += p1_bullet.vX / 2;
     p1_tank.top += p1_bullet.vY / 2;
-    p1_tank.right = p1_tank.left + 8;
-    p1_tank.bottom = p1_tank.top + 8;
-    if (p1_tank.left < 0) {
-      p1_tank.left += 1;
-    }
-    if (p1_tank.left > 215) {
-      p1_tank.left -= 1;
-    }
-    if (p1_tank.top < 0) {
-      p1_tank.top += 1;
-    }
-    if (p1_tank.top > 170) {
-      p1_tank.top -= 1;
-    }
     MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
     // Update tanks position on the tile grid
     p1_tank.x = p1_tank.left / 8;
     p1_tank.y = p1_tank.top / 8;
+    wallTankCollision();
+    }
   }
   tank1Prev = tank1Held;
 }
@@ -324,12 +317,12 @@ void initMaze1(void) {
   DrawMap2(0, 0, maze1);
 
   MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
-  p1_tank.left = 5;              // set tank to the left
-  p1_tank.top = 85;             // center tank vertically
+  p1_tank.left = 8;              // set tank to the left
+  p1_tank.top = 80;             // center tank vertically
   p1_tank.right = 13;
   p1_tank.bottom = 93;
   p1_tank.angle = 4;           // face right
-  p1_tank.x = 0;
+  p1_tank.x = 1;
   p1_tank.y = 10;
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
@@ -346,4 +339,291 @@ void initMaze1(void) {
   p2_bullet.vY = 0;
   p2_bullet.active = false;
   p2_bullet.age = 0;
+}
+
+void wallTankCollision(void) {
+  if (p1_tank.angle == 0) {
+    if (p1_tank.y == 0) {    // If tank is at the top of the screen
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, p1_tank.y) == 0x25) { // Is tank above a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 1) {
+    if (p1_tank.y == 0) {    // If tank is at the top of the screen
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.x == 27) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, p1_tank.y) == 0x25) { // Is tank above a wall?
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), p1_tank.y) == 0x25) { // Is tank to the right a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 2) {
+    if (p1_tank.y == 0) {    // If tank is at the top of the screen
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.x == 27) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, p1_tank.y) == 0x25) { // Is tank above a wall?
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), p1_tank.y) == 0x25) { // Is tank to the right a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 3) {
+    if (p1_tank.y == 0) {    // If tank is at the top of the screen
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.x == 27) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, p1_tank.y) == 0x25) { // Is tank above a wall?
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), p1_tank.y) == 0x25) { // Is tank to the right a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 4) {
+    if (p1_tank.x == 27) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), p1_tank.y) == 0x25) { // Is tank to the right a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 5) {
+    if (p1_tank.y == 21) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.x == 27) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), p1_tank.y) == 0x25) { // Is tank to the right a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 6) {
+    if (p1_tank.y == 21) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.x == 27) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), p1_tank.y) == 0x25) { // Is tank to the right a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 7) {
+    if (p1_tank.y == 21) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.x == 27) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x + 1), p1_tank.y) == 0x25) { // Is tank to the right a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 8) {
+    if (p1_tank.y == 21) {    // If tank is at the bottom of the screen
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y + 1)) == 0x25) { // Is tank below a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 9) {
+    if (p1_tank.y == 21) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.left == 0) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), p1_tank.y) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 10) {
+    if (p1_tank.y == 21) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.left == 0) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), p1_tank.y) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 11) {
+    if (p1_tank.y == 21) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.left == 0) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), (p1_tank.y + 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), p1_tank.y) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 12) {
+    if (p1_tank.left < 0) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), p1_tank.y) == 0x25) { // Is tank to the left a wall?
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 13) {
+    if (p1_tank.y == 0) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.left == 0) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), p1_tank.y) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 14) {
+    if (p1_tank.y == 0) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.left == 0) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), p1_tank.y) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
+  if (p1_tank.angle == 15) {
+    if (p1_tank.y == 0) {
+      p1_tank.advance = false;
+    }
+    else if (p1_tank.left == 0) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile(p1_tank.x, (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), (p1_tank.y - 1)) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else if (GetTile((p1_tank.x - 1), p1_tank.y) == 0x25) {
+      p1_tank.advance = false;
+    }
+    else {
+      p1_tank.advance = true;
+    }
+  }
 }
