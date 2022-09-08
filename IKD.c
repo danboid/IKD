@@ -102,8 +102,9 @@ void cuzeboxHOut(int num) {
 }
 
 int main() {
-  // some basic prep work
+  // Basic prep work
   initIKD();
+  // Load maze 1
   initMaze1();
   // Main loop
   while (1) {
@@ -220,19 +221,10 @@ void processTank2(void) {
     p2_tank.top += p2_bullet.vY / 2;
     p2_tank.right = p2_tank.left + 8;
     p2_tank.bottom = p2_tank.top + 8;
-    if (p2_tank.left < 0) {
-      p2_tank.left += 1;
-    }
-    if (p2_tank.left > 215) {
-      p2_tank.left -= 1;
-    }
-    if (p2_tank.top < 0) {
-      p2_tank.top += 1;
-    }
-    if (p2_tank.top > 170) {
-      p2_tank.top -= 1;
-    }
     MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
+    // Update tank 2's position on the tile grid
+    p2_tank.x = p2_tank.left / 8;
+    p2_tank.y = p2_tank.top / 8;
   }
   tank2Prev = tank2Held;
 }
@@ -335,6 +327,8 @@ void initMaze1(void) {
   p2_tank.right = 218;
   p2_tank.bottom = 93;
   p2_tank.angle = 12;          // face left
+  p2_tank.x = 26;
+  p2_tank.y = 10;
   p2_bullet.vX = -1;
   p2_bullet.vY = 0;
   p2_bullet.active = false;
