@@ -170,6 +170,11 @@ void processTank1(void) {
     if (p1_tank.advance == true) {
     p1_tank.left += p1_bullet.vX / 2;
     p1_tank.top += p1_bullet.vY / 2;
+    p1_tank.right = p1_tank.left + 8;
+    p1_tank.bottom = p1_tank.top + 8;
+    if (p1_tank.left < 0) {   // Stop player moving off left side of screen.
+      p1_tank.left += 1;      // Would prefer this was done in wallTankCollision().
+    }
     MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
     // Update tanks position on the tile grid
     p1_tank.x = p1_tank.left / 8;
@@ -224,6 +229,9 @@ void processTank2(void) {
     p2_tank.top += p2_bullet.vY / 2;
     p2_tank.right = p2_tank.left + 8;
     p2_tank.bottom = p2_tank.top + 8;
+    if (p2_tank.left < 0) {   // Stop player moving off left side of screen.
+      p2_tank.left += 1;      // Would prefer this was done in wallTankCollision().
+    }
     MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
     // Update tank 2's position on the tile grid
     p2_tank.x = p2_tank.left / 8;
