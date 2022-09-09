@@ -58,6 +58,8 @@ struct bulletStruct {
   float vY;
   bool active;
   int age;
+  int gridX;
+  int gridY;
 };
 
 struct bulletStruct p1_bullet, p2_bullet;
@@ -247,6 +249,8 @@ void processBullets(void) {
     p1_bullet.age++;
     p1_bullet.x += p1_bullet.vX * 3;
     p1_bullet.y += p1_bullet.vY * 3;
+    p1_bullet.gridX = p1_bullet.x / 8;
+    p1_bullet.gridY = p1_bullet.y / 8;
     MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
     if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= p2_tank.right &&
         p1_bullet.y >= p2_tank.top && p1_bullet.y <= p2_tank.bottom) {
@@ -269,6 +273,10 @@ void processBullets(void) {
       p2_bullet.active = false;
       p2_bullet.age = 0;
     }
+    else if (GetTile(p1_bullet.gridX, p1_bullet.gridY) == 0x25) {
+      p1_bullet.active = false;
+      MapSprite2(1, blank, 0);
+    }
   } else {
     p1_bullet.active = false;
     MapSprite2(1, blank, 0);
@@ -278,6 +286,8 @@ void processBullets(void) {
     p2_bullet.age++;
     p2_bullet.x += p2_bullet.vX * 3;
     p2_bullet.y += p2_bullet.vY * 3;
+    p2_bullet.gridX = p2_bullet.x / 8;
+    p2_bullet.gridY = p2_bullet.y / 8;
     MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
     if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= p1_tank.right &&
         p2_bullet.y >= p1_tank.top && p2_bullet.y <= p1_tank.bottom) {
@@ -299,6 +309,10 @@ void processBullets(void) {
       MapSprite2(0, tank1_current_sprite, 0);
       p1_bullet.active = false;
       p1_bullet.age = 0;
+    }
+    else if (GetTile(p2_bullet.gridX, p2_bullet.gridY) == 0x25) {
+      p2_bullet.active = false;
+      MapSprite2(3, blank, 0);
     }
   } else {
     p2_bullet.active = false;
@@ -333,6 +347,8 @@ void initMaze1(void) {
   p1_bullet.vY = 0;
   p1_bullet.active = false;
   p1_bullet.age = 0;
+  p1_bullet.gridX = 1;
+  p1_bullet.gridY = 10;
 
   MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
   p2_tank.left = 210;             // set tank to the right
@@ -346,6 +362,8 @@ void initMaze1(void) {
   p2_bullet.vY = 0;
   p2_bullet.active = false;
   p2_bullet.age = 0;
+  p2_bullet.gridX = 26;
+  p2_bullet.gridY = 10;
 }
 
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
