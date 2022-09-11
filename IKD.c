@@ -174,9 +174,6 @@ void processTank1(void) {
     p1_tank.top += p1_bullet.vY / 2;
     p1_tank.right = p1_tank.left + 8;
     p1_tank.bottom = p1_tank.top + 8;
-    if (p1_tank.left < 0) {   // Stop player moving off left side of screen.
-      p1_tank.left += 1;      // Would prefer this was done in wallTankCollision().
-    }
     MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
     // Update tanks position on the tile grid
     p1_tank.x = p1_tank.left / 8;
@@ -231,9 +228,6 @@ void processTank2(void) {
     p2_tank.top += p2_bullet.vY / 2;
     p2_tank.right = p2_tank.left + 8;
     p2_tank.bottom = p2_tank.top + 8;
-    if (p2_tank.left < 0) {   // Stop player moving off left side of screen.
-      p2_tank.left += 1;      // Would prefer this was done in wallTankCollision().
-    }
     MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
     // Update tank 2's position on the tile grid
     p2_tank.x = p2_tank.left / 8;
@@ -370,15 +364,7 @@ void initMaze2(void) {
 
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
   if (tankAngle == 0) {
-    if (tankY == 0) {    // If tank is at the top of the screen
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, tankY) == 0x25) { // Is tank above a wall?
+    if (GetTile(tankX, tankY) == 0x25) { // Is tank above a wall?
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -396,23 +382,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 1) {
-    if (tankY == 0) {    // If tank is at the top of the screen
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 27) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, tankY) == 0x25) { // Is tank above a wall?
+    if (GetTile(tankX, tankY) == 0x25) { // Is tank above a wall?
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -446,23 +416,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 2) {
-    if (tankY == 0) {    // If tank is at the top of the screen
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 27) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, tankY) == 0x25) { // Is tank above a wall?
+    if (GetTile(tankX, tankY) == 0x25) { // Is tank above a wall?
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -496,23 +450,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 3) {
-    if (tankY == 0) {    // If tank is at the top of the screen
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 27) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, tankY) == 0x25) { // Is tank above a wall?
+    if (GetTile(tankX, tankY) == 0x25) { // Is tank above a wall?
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -546,15 +484,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 4) {
-    if (tankX == 27) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile((tankX + 1), tankY) == 0x25) { // Is tank to the right a wall?
+    if (GetTile((tankX + 1), tankY) == 0x25) { // Is tank to the right a wall?
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -572,23 +502,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 5) {
-    if (tankY == 21) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 27) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, (tankY + 1)) == 0x25) {
+    if (GetTile(tankX, (tankY + 1)) == 0x25) {
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -622,23 +536,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 6) {
-    if (tankY == 21) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 27) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, (tankY + 1)) == 0x25) {
+    if (GetTile(tankX, (tankY + 1)) == 0x25) {
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -672,23 +570,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 7) {
-    if (tankY == 21) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 27) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, (tankY + 1)) == 0x25) {
+    if (GetTile(tankX, (tankY + 1)) == 0x25) {
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -722,15 +604,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 8) {
-    if (tankY == 21) {    // If tank is at the bottom of the screen
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, (tankY + 1)) == 0x25) { // Is tank below a wall?
+    if (GetTile(tankX, (tankY + 1)) == 0x25) { // Is tank below a wall?
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -798,15 +672,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 10) {
-    if (tankY == 21) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 0) {
+    if (tankX == 0) {
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -848,23 +714,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 11) {
-    if (tankY == 21) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 0) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile(tankX, (tankY + 1)) == 0x25) {
+    if (GetTile(tankX, (tankY + 1)) == 0x25) {
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -898,15 +748,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 12) {
-    if (tankX < 0) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (GetTile((tankX - 1), tankY) == 0x25) { // Is tank to the left a wall?
+    if (GetTile((tankX - 1), tankY) == 0x25) { // Is tank to the left a wall?
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -924,15 +766,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 13) {
-    if (tankY == 0) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 0) {
+    if (tankX == 0) {
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -974,15 +808,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 14) {
-    if (tankY == 0) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 0) {
+    if (tankX == 0) {
       if (tankN == 0) {
         p1_tank.advance = false;
       }
@@ -1024,15 +850,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     }
   }
   if (tankAngle == 15) {
-    if (tankY == 0) {
-      if (tankN == 0) {
-        p1_tank.advance = false;
-      }
-      else if (tankN == 1) {
-        p2_tank.advance = false;
-      }
-    }
-    else if (tankX == 0) {
+    if (tankX == 0) {
       if (tankN == 0) {
         p1_tank.advance = false;
       }
