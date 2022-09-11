@@ -257,7 +257,7 @@ void processBullets(void) {
       }
 
       p2_tank.left = rand() % 210;
-      p2_tank.top = rand() % 210;
+      p2_tank.top = rand() % 160;
       p2_tank.right = p2_tank.left + 8;
       p2_tank.bottom = p2_tank.top + 8;
       p2_tank.angle = rand() % 15;
@@ -294,7 +294,7 @@ void processBullets(void) {
       }
 
       p1_tank.left = rand() % 210;
-      p1_tank.top = rand() % 210;
+      p1_tank.top = rand() % 160;
       p1_tank.right = p1_tank.left + 8;
       p1_tank.bottom = p1_tank.top + 8;
       p1_tank.angle = rand() % 15;
