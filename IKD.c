@@ -78,7 +78,7 @@ struct tankStruct {
 struct tankStruct p1_tank, p2_tank;
 
 void initIKD(void);
-void initMaze1(void);
+void initMaze2(void);
 void processTrig(void);
 void processBullets(void);
 void processTank1(void);
@@ -106,8 +106,8 @@ void cuzeboxHOut(int num) {
 int main() {
   // Basic prep work
   initIKD();
-  // Load maze 1
-  initMaze1();
+  // Load maze 2
+  initMaze2();
   // Main loop
   while (1) {
     // wait until the next frame
@@ -332,8 +332,8 @@ void processScore(void) {
   DrawMap2(18, 22, (numbers2[Score[1]]));
 }
 
-void initMaze1(void) {
-  DrawMap2(0, 0, maze1);
+void initMaze2(void) {
+  DrawMap2(0, 0, maze2);
 
   MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
   p1_tank.left = 8;              // set tank to the left
@@ -343,6 +343,7 @@ void initMaze1(void) {
   p1_tank.angle = 4;           // face right
   p1_tank.x = 1;
   p1_tank.y = 10;
+  p1_tank.advance = true;
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
   p1_bullet.active = false;
@@ -351,18 +352,19 @@ void initMaze1(void) {
   p1_bullet.gridY = 10;
 
   MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
-  p2_tank.left = 210;             // set tank to the right
+  p2_tank.left = 202;             // set tank to the right
   p2_tank.top = 85;             // center tank vertically
-  p2_tank.right = 218;
+  p2_tank.right = 210;
   p2_tank.bottom = 93;
   p2_tank.angle = 12;          // face left
   p2_tank.x = 26;
   p2_tank.y = 10;
+  p2_tank.advance = true;
   p2_bullet.vX = -1;
   p2_bullet.vY = 0;
   p2_bullet.active = false;
   p2_bullet.age = 0;
-  p2_bullet.gridX = 26;
+  p2_bullet.gridX = 25;
   p2_bullet.gridY = 10;
 }
 
