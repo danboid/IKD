@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<gfx-xform version="1">
+	<input file="maze1.png" type="png" tile-width="1" tile-height="1" />
+	<output file="tileset.inc" remove-duplicate-tiles="true">
+		<tiles var-name="tileset" />
+		<maps pointers-size="8">
+			<map var-name="maze1" left="0" top="0" width="28" height="22" />
+		</maps>
+	</output>
+</gfx-xform>
