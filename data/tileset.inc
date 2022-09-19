@@ -1,205 +1,137 @@
 // Tile and sprite data for IKD
 
-#define TANK1_000_WIDTH 1
-#define TANK1_000_HEIGHT 1
 const char tank1_000[] PROGMEM ={
 1,1
 ,0x1};
 
-#define TANK1_023_WIDTH 1
-#define TANK1_023_HEIGHT 1
 const char tank1_023[] PROGMEM ={
 1,1
 ,0x2};
 
-#define TANK1_045_WIDTH 1
-#define TANK1_045_HEIGHT 1
 const char tank1_045[] PROGMEM ={
 1,1
 ,0x3};
 
-#define TANK1_068_WIDTH 1
-#define TANK1_068_HEIGHT 1
 const char tank1_068[] PROGMEM ={
 1,1
 ,0x4};
 
-#define TANK1_090_WIDTH 1
-#define TANK1_090_HEIGHT 1
 const char tank1_090[] PROGMEM ={
 1,1
 ,0x5};
 
-#define TANK1_113_WIDTH 1
-#define TANK1_113_HEIGHT 1
 const char tank1_113[] PROGMEM ={
 1,1
 ,0x6};
 
-#define TANK1_135_WIDTH 1
-#define TANK1_135_HEIGHT 1
 const char tank1_135[] PROGMEM ={
 1,1
 ,0x7};
 
-#define TANK1_158_WIDTH 1
-#define TANK1_158_HEIGHT 1
 const char tank1_158[] PROGMEM ={
 1,1
 ,0x8};
 
-#define TANK1_180_WIDTH 1
-#define TANK1_180_HEIGHT 1
 const char tank1_180[] PROGMEM ={
 1,1
 ,0x9};
 
-#define TANK1_203_WIDTH 1
-#define TANK1_203_HEIGHT 1
 const char tank1_203[] PROGMEM ={
 1,1
 ,0xa};
 
-#define TANK1_225_WIDTH 1
-#define TANK1_225_HEIGHT 1
 const char tank1_225[] PROGMEM ={
 1,1
 ,0xb};
 
-#define TANK1_248_WIDTH 1
-#define TANK1_248_HEIGHT 1
 const char tank1_248[] PROGMEM ={
 1,1
 ,0xc};
 
-#define TANK1_270_WIDTH 1
-#define TANK1_270_HEIGHT 1
 const char tank1_270[] PROGMEM ={
 1,1
 ,0xd};
 
-#define TANK1_293_WIDTH 1
-#define TANK1_293_HEIGHT 1
 const char tank1_293[] PROGMEM ={
 1,1
 ,0xe};
 
-#define TANK1_315_WIDTH 1
-#define TANK1_315_HEIGHT 1
 const char tank1_315[] PROGMEM ={
 1,1
 ,0xf};
 
-#define TANK1_338_WIDTH 1
-#define TANK1_338_HEIGHT 1
 const char tank1_338[] PROGMEM ={
 1,1
 ,0x10};
 
-#define BULLET_WIDTH 1
-#define BULLET_HEIGHT 1
 const char bullet[] PROGMEM ={
 1,1
 ,0x11};
 
-#define BLANK_WIDTH 1
-#define BLANK_HEIGHT 1
 const char blank[] PROGMEM ={
 1,1
 ,0x12};
 
-#define TANK2_000_WIDTH 1
-#define TANK2_000_HEIGHT 1
 const char tank2_000[] PROGMEM ={
 1,1
 ,0x13};
 
-#define TANK2_023_WIDTH 1
-#define TANK2_023_HEIGHT 1
 const char tank2_023[] PROGMEM ={
 1,1
 ,0x14};
 
-#define TANK2_045_WIDTH 1
-#define TANK2_045_HEIGHT 1
 const char tank2_045[] PROGMEM ={
 1,1
 ,0x15};
 
-#define TANK2_068_WIDTH 1
-#define TANK2_068_HEIGHT 1
 const char tank2_068[] PROGMEM ={
 1,1
 ,0x16};
 
-#define TANK2_090_WIDTH 1
-#define TANK2_090_HEIGHT 1
 const char tank2_090[] PROGMEM ={
 1,1
 ,0x17};
 
-#define TANK2_113_WIDTH 1
-#define TANK2_113_HEIGHT 1
 const char tank2_113[] PROGMEM ={
 1,1
 ,0x18};
 
-#define TANK2_135_WIDTH 1
-#define TANK2_135_HEIGHT 1
 const char tank2_135[] PROGMEM ={
 1,1
 ,0x19};
 
-#define TANK2_158_WIDTH 1
-#define TANK2_158_HEIGHT 1
 const char tank2_158[] PROGMEM ={
 1,1
 ,0x1a};
 
-#define TANK2_180_WIDTH 1
-#define TANK2_180_HEIGHT 1
 const char tank2_180[] PROGMEM ={
 1,1
 ,0x1b};
 
-#define TANK2_203_WIDTH 1
-#define TANK2_203_HEIGHT 1
 const char tank2_203[] PROGMEM ={
 1,1
 ,0x1c};
 
-#define TANK2_225_WIDTH 1
-#define TANK2_225_HEIGHT 1
 const char tank2_225[] PROGMEM ={
 1,1
 ,0x1d};
 
-#define TANK2_248_WIDTH 1
-#define TANK2_248_HEIGHT 1
 const char tank2_248[] PROGMEM ={
 1,1
 ,0x1e};
 
-#define TANK2_270_WIDTH 1
-#define TANK2_270_HEIGHT 1
 const char tank2_270[] PROGMEM ={
 1,1
 ,0x1f};
 
-#define TANK2_293_WIDTH 1
-#define TANK2_293_HEIGHT 1
 const char tank2_293[] PROGMEM ={
 1,1
 ,0x20};
 
-#define TANK2_315_WIDTH 1
-#define TANK2_315_HEIGHT 1
 const char tank2_315[] PROGMEM ={
 1,1
 ,0x21};
 
-#define TANK2_338_WIDTH 1
-#define TANK2_338_HEIGHT 1
 const char tank2_338[] PROGMEM ={
 1,1
 ,0x22};
@@ -212,8 +144,6 @@ const char tank2_score[] PROGMEM ={
 1,1
 ,0x24};
 
-
-#define TILESET_SIZE 37
 const char tileset[] PROGMEM={
  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0		 //tile:0
 , 0xFE, 0xFE, 0xFE, 0xFE, 0x57, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0x57, 0xFE, 0xFE, 0xFE, 0xFE, 0x57, 0x57, 0xFE, 0x57, 0xFE, 0x57, 0x57, 0xFE, 0x57, 0x57, 0x57, 0x57, 0x57, 0x57, 0x57, 0xFE, 0x57, 0x57, 0x57, 0x57, 0x57, 0x57, 0x57, 0xFE, 0x57, 0x57, 0x57, 0x57, 0x57, 0x57, 0x57, 0xFE, 0x57, 0x57, 0xFE, 0xFE, 0xFE, 0x57, 0x57, 0xFE, 0x57, 0x57, 0xFE, 0xFE, 0xFE, 0x57, 0x57		 //tile:1
