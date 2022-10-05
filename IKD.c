@@ -7,7 +7,6 @@
  */
 
 
-#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <math.h>
