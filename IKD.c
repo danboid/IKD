@@ -16,6 +16,7 @@
 
 #include "data/sfx.inc"
 #include "data/tileset.inc"
+#include "data/font-8x8.inc"
 
 int tank1Prev = 0;     // Previous button
 int tank1Held = 0;     // buttons that are held right now
@@ -123,6 +124,7 @@ void initIKD(void) {
   InitMusicPlayer(patches);
   SetSpritesTileTable(tileset);
   SetTileTable(tileset); // Tile set to use for ClearVram()
+  SetFontTilesIndex(TILESET_SIZE);
   ClearVram();           // fill entire screen with first tile in the tileset
 
   Score[0] = 0;
