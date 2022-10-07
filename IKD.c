@@ -103,20 +103,33 @@ void cuzeboxHOut(int num) {
   _SFR_IO8(0X1a)='\n'; // Add newline
 }
 
+typedef enum {MAIN_MENU, GAME} state;
+state game_state = GAME; ///< Tracks current state of the game.
+
 int main() {
-  // Basic prep work
-  initIKD();
-  // Load maze 2
-  initMaze2();
-  // Main loop
-  while (1) {
-    // wait until the next frame
-    WaitVsync(1);
-    seed++;
-    processTank1();
-    processTank2();
-    processBullets();
-    processScore();
+  while(1)
+  {
+    if(game_state == GAME)
+    {
+      // Basic prep work
+      initIKD();
+      // Load maze 2
+      initMaze2();
+      // Main loop
+      while (1) {
+        // wait until the next frame
+        WaitVsync(1);
+        seed++;
+        processTank1();
+        processTank2();
+        processBullets();
+        processScore();
+      }
+    }
+    if(game_state == MAIN_MENU)
+    {
+      // Menu code here
+    }
   }
 }
 
