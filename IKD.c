@@ -87,6 +87,7 @@ void processScore(void);
 void cuzeboxCOut(char str[]);
 void cuzeboxHOut(int num);
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle);
+void drawMainMenu(void);
 
 // cuzeboxCOut() is used to print debug strings to the cuzebox console.
 void cuzeboxCOut(char str[]) {
@@ -113,6 +114,11 @@ int main() {
     {
       // Basic prep work
       initIKD();
+
+      // Reset scores
+      Score[0] = 0;
+      Score[1] = 0;
+
       // Load maze 2
       initMaze2();
       // Main loop
@@ -129,6 +135,8 @@ int main() {
     if(game_state == MAIN_MENU)
     {
       // Menu code here
+      initIKD();
+      drawMainMenu();
     }
   }
 }
@@ -139,9 +147,6 @@ void initIKD(void) {
   SetTileTable(tileset); // Tile set to use for ClearVram()
   SetFontTilesIndex(TILESET_SIZE);
   ClearVram();           // fill entire screen with first tile in the tileset
-
-  Score[0] = 0;
-  Score[1] = 0;
 }
 
 void processTank1(void) {
@@ -374,6 +379,15 @@ void initMaze2(void) {
   p2_bullet.age = 0;
   p2_bullet.gridX = 25;
   p2_bullet.gridY = 10;
+}
+
+void drawMainMenu()
+{
+  Print(12,1,PSTR("IKD"));
+  Print(10,24,PSTR("NO MAZE"));
+  Print(10,25,PSTR("MAZE  1"));
+  Print(10,26,PSTR("MAZE  2"));
+  while(1);
 }
 
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
