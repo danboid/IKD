@@ -407,27 +407,28 @@ void drawMainMenu()
 
 void processMainMenu()
 {
- tank1Held = ReadJoypad(0); // read in our player one joypad input
- //pressing something and it isn't the same buttons as last frame so it's a new button press, not a hold
- if (tank1Held!=tank1Prev) {
-   if (tank1Held & BTN_DOWN) {
-     maze++;
-     if (maze > 2) {
-       maze = 0;
+  tank1Held = ReadJoypad(0); // read in our player one joypad input
+  //pressing something and it isn't the same buttons as last frame so it's a new button press, not a hold
+  if (tank1Held!=tank1Prev) {
+    if (tank1Held & BTN_DOWN) {
+      maze++;
+      if (maze > 2) {
+        maze = 0;
+      }
+      drawMainMenu();
     }
-    drawMainMenu();
-}
-if (tank1Held & BTN_UP) {
-     maze--;
-     if (maze < 0) {
-       maze = 2;
+    if (tank1Held & BTN_UP) {
+      maze--;
+      if (maze < 0) {
+        maze = 2;
+      }
+      drawMainMenu();
     }
-    drawMainMenu();
-}
-if (tank1Held & BTN_START) {
-  game_state = GAME;
-}
-}
+    if (tank1Held & BTN_START) {
+      game_state = GAME;
+    }
+    tank1Prev = tank1Held;
+  }
 }
 
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
