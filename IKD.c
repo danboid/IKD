@@ -47,6 +47,12 @@ const char *tank1_current_sprite, *tank2_current_sprite;
 
 int Score[2] = {0, 0};
 
+int menu_opts[3] = {24, 25, 26};
+
+int maze = 0;
+
+const char *mazes[3] = {maze0, maze1, maze2};
+
 const char *numbers[10] = {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9};
 
 const char *numbers2[10] = {sc0, sc1, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9};
@@ -78,7 +84,7 @@ struct tankStruct {
 struct tankStruct p1_tank, p2_tank;
 
 void initIKD(void);
-void initMaze2(void);
+void initMaze(void);
 void processTrig(void);
 void processBullets(void);
 void processTank1(void);
@@ -88,6 +94,7 @@ void cuzeboxCOut(char str[]);
 void cuzeboxHOut(int num);
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle);
 void drawMainMenu(void);
+void processMainMenu(void);
 
 // cuzeboxCOut() is used to print debug strings to the cuzebox console.
 void cuzeboxCOut(char str[]) {
@@ -105,7 +112,7 @@ void cuzeboxHOut(int num) {
 }
 
 typedef enum {MAIN_MENU, GAME} state;
-state game_state = GAME; ///< Tracks current state of the game.
+state game_state = MAIN_MENU; ///< Tracks current state of the game.
 
 int main() {
   while(1)
@@ -119,8 +126,8 @@ int main() {
       Score[0] = 0;
       Score[1] = 0;
 
-      // Load maze 2
-      initMaze2();
+      // Load maze
+      initMaze();
       // Main loop
       while (1) {
         // wait until the next frame
@@ -138,6 +145,12 @@ int main() {
       initIKD();
       drawMainMenu();
     }
+    while(game_state == MAIN_MENU)
+		{
+			WaitVsync(1);
+			processMainMenu();
+            drawMainMenu();
+		}
   }
 }
 
@@ -345,8 +358,8 @@ void processScore(void) {
   DrawMap2(18, 22, (numbers2[Score[1]]));
 }
 
-void initMaze2(void) {
-  DrawMap2(0, 0, maze2);
+void initMaze(void) {
+  DrawMap2(0, 0, mazes[maze]);
 
   MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
   p1_tank.left = 8;              // set tank to the left
@@ -383,11 +396,38 @@ void initMaze2(void) {
 
 void drawMainMenu()
 {
+  ClearVram();
   Print(12,1,PSTR("IKD"));
+  Print(2,3,PSTR("BY DAN MACDONALD, 2022"));
   Print(10,24,PSTR("NO MAZE"));
-  Print(10,25,PSTR("MAZE  1"));
-  Print(10,26,PSTR("MAZE  2"));
-  while(1);
+  Print(10,25,PSTR("MAZE #1"));
+  Print(10,26,PSTR("MAZE #2"));
+  SetTile(8,menu_opts[maze],5);
+}
+
+void processMainMenu()
+{
+ tank1Held = ReadJoypad(0); // read in our player one joypad input
+ //pressing something and it isn't the same buttons as last frame so it's a new button press, not a hold
+ if (tank1Held!=tank1Prev) {
+   if (tank1Held & BTN_DOWN) {
+     maze++;
+     if (maze > 2) {
+       maze = 0;
+    }
+    drawMainMenu();
+}
+if (tank1Held & BTN_UP) {
+     maze--;
+     if (maze < 0) {
+       maze = 2;
+    }
+    drawMainMenu();
+}
+if (tank1Held & BTN_START) {
+  game_state = GAME;
+}
+}
 }
 
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
