@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<gfx-xform version="1">
+	<input file="IKD-titlescreen-scaled.png" type="png" tile-width="8" tile-height="8" />
+	<output file="title_screen.inc" remove-duplicate-tiles="true">
+		<tiles var-name="tileset" />
+		<maps pointers-size="8">
+			<map var-name="title_screen" left="0" top="0" width="32" height="28" />
+		</maps>
+	</output>
+</gfx-xform>
+
