@@ -75,6 +75,8 @@ struct tankStruct {
   float bottom;
   float left;
   float right;
+  float vX;
+  float vY;
   int angle;     // Which direction is the tank facing? 0 = up/north, 4 = right/east
   int x;         // Current 8x8 pixel tile horizontal grid position, starting from the left
   int y;         // Vertical tile position, starting from the top of the screen
@@ -194,6 +196,8 @@ void processTank1(void) {
       p1_bullet.age = 0;
       p1_bullet.x = p1_tank.left;
       p1_bullet.y = p1_tank.top;
+      p1_bullet.vX = p1_tank.vX;
+      p1_bullet.vY = p1_tank.vY;
       p1_bullet.active = true;
       MapSprite2(1, bullet, 0); // map bullet
       MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
@@ -202,8 +206,8 @@ void processTank1(void) {
   }
   if (tank1Held & BTN_UP) {
     if (p1_tank.advance == true) {
-    p1_tank.left += p1_bullet.vX / 2;
-    p1_tank.top += p1_bullet.vY / 2;
+    p1_tank.left += p1_tank.vX / 2;
+    p1_tank.top += p1_tank.vY / 2;
     p1_tank.right = p1_tank.left + 8;
     p1_tank.bottom = p1_tank.top + 8;
     MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
@@ -248,6 +252,9 @@ void processTank2(void) {
       p2_bullet.age = 0;
       p2_bullet.x = p2_tank.left;
       p2_bullet.y = p2_tank.top;
+      p2_bullet.vX = p2_tank.vX;
+      p2_bullet.vY = p2_tank.vY;
+
       p2_bullet.active = true;
       MapSprite2(3, bullet, 0); // map bullet
       MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
@@ -256,8 +263,9 @@ void processTank2(void) {
   }
   if (tank2Held & BTN_UP) {
     if (p2_tank.advance == true) {
-    p2_tank.left += p2_bullet.vX / 2;
-    p2_tank.top += p2_bullet.vY / 2;
+    p2_tank.left += p2_tank.vX / 2;
+    p2_tank.top += p2_tank.vY / 2;
+
     p2_tank.right = p2_tank.left + 8;
     p2_tank.bottom = p2_tank.top + 8;
     MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
@@ -300,8 +308,9 @@ void processBullets(void) {
       p2_bullet.age = 0;
     }
     else if (GetTile(p1_bullet.gridX, p1_bullet.gridY) == 0x25) {
-      p1_bullet.active = false;
-      MapSprite2(1, blank, 0);
+      // Fake bouncy bullet
+      p1_bullet.vX = -p1_bullet.vX * 0.9;
+      p1_bullet.vY = -p1_bullet.vY * 0.9;
     }
   } else {
     p1_bullet.active = false;
@@ -337,8 +346,11 @@ void processBullets(void) {
       p1_bullet.age = 0;
     }
     else if (GetTile(p2_bullet.gridX, p2_bullet.gridY) == 0x25) {
-      p2_bullet.active = false;
-      MapSprite2(3, blank, 0);
+      p2_bullet.vX = -p2_bullet.vX * 0.9;
+      p2_bullet.vY = -p2_bullet.vY * 0.9;
+      // Old behaviour (bullet dies on contact with a wall):
+      // p2_bullet.active = false;
+      // MapSprite2(3, blank, 0);
     }
   } else {
     p2_bullet.active = false;
@@ -347,10 +359,10 @@ void processBullets(void) {
 }
 
 void processTrig(void) {
-  p1_bullet.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
-  p1_bullet.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
-  p2_bullet.vX = sin(2 * M_PI * (angles[p2_tank.angle] / 360));
-  p2_bullet.vY = -cos(2 * M_PI * (angles[p2_tank.angle] / 360));
+  p1_tank.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
+  p1_tank.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
+  p2_tank.vX = sin(2 * M_PI * (angles[p2_tank.angle] / 360));
+  p2_tank.vY = -cos(2 * M_PI * (angles[p2_tank.angle] / 360));
 }
 
 void processScore(void) {
@@ -369,6 +381,8 @@ void initMaze(void) {
   p1_tank.angle = 4;           // face right
   p1_tank.x = 1;
   p1_tank.y = 10;
+  p1_tank.vX = 1;
+  p1_tank.vY = 0;
   p1_tank.advance = true;
   p1_bullet.vX = 1;
   p1_bullet.vY = 0;
@@ -385,6 +399,8 @@ void initMaze(void) {
   p2_tank.angle = 12;          // face left
   p2_tank.x = 26;
   p2_tank.y = 10;
+  p2_tank.vX = 1;
+  p2_tank.vY = 0;
   p2_tank.advance = true;
   p2_bullet.vX = -1;
   p2_bullet.vY = 0;
