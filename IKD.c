@@ -47,7 +47,7 @@ const char *tank1_current_sprite, *tank2_current_sprite;
 
 int Score[2] = {0, 0};
 
-int menu_opts[3] = {24, 25, 26};
+int menu_opts[4] = {23, 24, 25, 26};
 
 int maze = 0;
 
@@ -69,6 +69,8 @@ struct bulletStruct {
 };
 
 struct bulletStruct p1_bullet, p2_bullet;
+
+bool bounce = true;
 
 struct tankStruct {
   float top;     // Top corner of the sprite in pixels
@@ -308,9 +310,14 @@ void processBullets(void) {
       p2_bullet.age = 0;
     }
     else if (GetTile(p1_bullet.gridX, p1_bullet.gridY) == 0x25) {
-      // Fake bouncy bullet
-      p1_bullet.vX = -p1_bullet.vX * 0.9;
-      p1_bullet.vY = -p1_bullet.vY * 0.9;
+      if (bounce == true) {
+        p1_bullet.vX = -p1_bullet.vX * 0.9;
+        p1_bullet.vY = -p1_bullet.vY * 0.9;
+      }
+      else {
+        p1_bullet.active = false;
+        MapSprite2(1, blank, 0);
+      }
     }
   } else {
     p1_bullet.active = false;
@@ -346,11 +353,14 @@ void processBullets(void) {
       p1_bullet.age = 0;
     }
     else if (GetTile(p2_bullet.gridX, p2_bullet.gridY) == 0x25) {
-      p2_bullet.vX = -p2_bullet.vX * 0.9;
-      p2_bullet.vY = -p2_bullet.vY * 0.9;
-      // Old behaviour (bullet dies on contact with a wall):
-      // p2_bullet.active = false;
-      // MapSprite2(3, blank, 0);
+      if (bounce == true) {
+        p2_bullet.vX = -p2_bullet.vX * 0.9;
+        p2_bullet.vY = -p2_bullet.vY * 0.9;
+      }
+      else {
+        p2_bullet.active = false;
+        MapSprite2(3, blank, 0);
+      }
     }
   } else {
     p2_bullet.active = false;
@@ -415,10 +425,16 @@ void drawMainMenu()
   ClearVram();
   Print(12,1,PSTR("IKD"));
   Print(2,3,PSTR("BY DAN MACDONALD, 2022"));
-  Print(10,24,PSTR("NO MAZE"));
-  Print(10,25,PSTR("MAZE #1"));
-  Print(10,26,PSTR("MAZE #2"));
-  SetTile(8,menu_opts[maze],5);
+  Print(10,23,PSTR("NO MAZE"));
+  Print(10,24,PSTR("MAZE #1"));
+  Print(10,25,PSTR("MAZE #2"));
+  if (bounce == true) {
+  Print(9,26,PSTR("BOUNCE ON"));
+  }
+  else {
+    Print(9,26,PSTR("BOUNCE OFF"));
+  }
+  SetTile(7,menu_opts[maze],5);
 }
 
 void processMainMenu()
@@ -428,7 +444,7 @@ void processMainMenu()
   if (tank1Held!=tank1Prev) {
     if (tank1Held & BTN_DOWN) {
       maze++;
-      if (maze > 2) {
+      if (maze > 3) {
         maze = 0;
       }
       drawMainMenu();
@@ -436,12 +452,26 @@ void processMainMenu()
     if (tank1Held & BTN_UP) {
       maze--;
       if (maze < 0) {
-        maze = 2;
+        maze = 3;
+      }
+      drawMainMenu();
+    }
+    if (tank1Held & BTN_LEFT) {
+      if (maze == 3) {
+        bounce = !bounce;
+      }
+      drawMainMenu();
+    }
+    if (tank1Held & BTN_RIGHT) {
+      if (maze == 3) {
+        bounce = !bounce;
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_START) {
+      if (maze != 3) {
       game_state = GAME;
+      }
     }
     tank1Prev = tank1Held;
   }
