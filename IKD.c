@@ -424,15 +424,16 @@ void drawMainMenu()
 {
   ClearVram();
   Print(12,1,PSTR("IKD"));
-  Print(2,3,PSTR("BY DAN MACDONALD, 2022"));
+  Print(1,5,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
+  Print(5,9,PSTR("BY DAN MACDONALD"));
   Print(10,23,PSTR("NO MAZE"));
   Print(10,24,PSTR("MAZE #1"));
   Print(10,25,PSTR("MAZE #2"));
   if (bounce == true) {
-  Print(9,26,PSTR("BOUNCE ON"));
+  Print(10,26,PSTR("BOUNCE ON"));
   }
   else {
-    Print(9,26,PSTR("BOUNCE OFF"));
+    Print(10,26,PSTR("BOUNCE OFF"));
   }
   SetTile(7,menu_opts[maze],5);
 }
@@ -474,6 +475,56 @@ void processMainMenu()
       }
     }
     tank1Prev = tank1Held;
+  }
+}
+
+// To implement bouncy bullets, we need a quick and easy way to check if a
+// tile next to the current one contains a wall tile, hence wallCheck():
+
+bool wallCheck(int gridX, int gridY, int side) {
+  if (side == 0) {    // Check the grid location above for a wall tile
+    if (gridY <= 0) {
+      return false;
+    }
+    else if (GetTile(gridX, (gridY - 1)) == 0x25) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else if (side == 1) {   // Check grid to the right for a wall tile
+    if (gridX >= 28) {
+      return false;
+    }
+    else if (GetTile((gridX + 1), gridY) == 0x25) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else if (side == 2) {   // Check grid location below for a wall tile
+    if (gridY >= 22) {
+      return false;
+    }
+    else if (GetTile(gridX, (gridY + 1)) == 0x25) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else if (side == 3) {   // Check grid to the left for a wall tile
+    if (gridX <= 0) {
+      return false;
+    }
+    else if (GetTile((gridX - 1), gridY) == 0x25) {
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 }
 
