@@ -3,7 +3,7 @@
  *  \author Dan MacDonald
  *          Score drawing code borrowed from Bradley Boccuzzi's
  *          Uzebox port of Pong.
- *  \date   2022
+ *  \date   2023
  */
 
 
@@ -66,6 +66,14 @@ struct bulletStruct {
   int age;
   int gridX;
   int gridY;
+  int top;     // Top edge of current bullet's current grid
+  int bottom;
+  int left;
+  int right;
+  int tside;
+  int rside;
+  int bside;
+  int lside;
 };
 
 struct bulletStruct p1_bullet, p2_bullet;
@@ -99,6 +107,7 @@ void cuzeboxHOut(int num);
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle);
 void drawMainMenu(void);
 void processMainMenu(void);
+int wallCheck(int gridX, int gridY, int side);
 
 // cuzeboxCOut() is used to print debug strings to the cuzebox console.
 void cuzeboxCOut(char str[]) {
@@ -287,6 +296,14 @@ void processBullets(void) {
     p1_bullet.y += p1_bullet.vY * 3;
     p1_bullet.gridX = p1_bullet.x / 8;
     p1_bullet.gridY = p1_bullet.y / 8;
+    p1_bullet.top = p1_bullet.gridY * 8;
+    p1_bullet.bottom = p1_bullet.top + 8;
+    p1_bullet.left = p1_bullet.gridX * 8;
+    p1_bullet.right = p1_bullet.left + 8;
+    p1_bullet.tside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,0);
+    p1_bullet.rside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,1);
+    p1_bullet.bside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,2);
+    p1_bullet.lside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,3);
     MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
     if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= p2_tank.right &&
         p1_bullet.y >= p2_tank.top && p1_bullet.y <= p2_tank.bottom) {
@@ -309,14 +326,48 @@ void processBullets(void) {
       p2_bullet.active = false;
       p2_bullet.age = 0;
     }
-    else if (GetTile(p1_bullet.gridX, p1_bullet.gridY) == 0x25) {
-      if (bounce == true) {
-        p1_bullet.vX = -p1_bullet.vX * 0.9;
-        p1_bullet.vY = -p1_bullet.vY * 0.9;
+    else if (p1_bullet.x >= (p1_bullet.right - 1)) {
+      if (p1_bullet.rside == 1) {
+        if (bounce == true) {
+          p1_bullet.vX = p1_bullet.vX * -1;
+        }
+        else {
+          p1_bullet.active = false;
+          MapSprite2(1, blank, 0);
+        }
       }
-      else {
-        p1_bullet.active = false;
-        MapSprite2(1, blank, 0);
+    }
+    else if (p1_bullet.x <= (p1_bullet.left - 1)) {
+      if (p1_bullet.lside == 1) {
+        if (bounce == true) {
+          p1_bullet.vX = p1_bullet.vX * -1;
+        }
+        else {
+          p1_bullet.active = false;
+          MapSprite2(1, blank, 0);
+        }
+      }
+    }
+    else if (p1_bullet.y >= (p1_bullet.top - 1)) {
+      if (p1_bullet.tside == 1) {
+        if (bounce == true) {
+          p1_bullet.vY = p1_bullet.vY * -1;
+        }
+        else {
+          p1_bullet.active = false;
+          MapSprite2(1, blank, 0);
+        }
+      }
+    }
+    else if (p1_bullet.y >= (p1_bullet.bottom - 1)) {
+      if (p1_bullet.bside == 1) {
+        if (bounce == true) {
+          p1_bullet.vY = p1_bullet.vY * -1;
+        }
+        else {
+          p1_bullet.active = false;
+          MapSprite2(1, blank, 0);
+        }
       }
     }
   } else {
@@ -400,6 +451,14 @@ void initMaze(void) {
   p1_bullet.age = 0;
   p1_bullet.gridX = 1;
   p1_bullet.gridY = 10;
+  p1_bullet.top = 8;
+  p1_bullet.bottom = 16;
+  p1_bullet.left = 8;
+  p1_bullet.right = 16;
+  p1_bullet.tside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,0);
+  p1_bullet.bside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,2);
+  p1_bullet.lside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,3);
+  p1_bullet.rside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,1);
 
   MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
   p2_tank.left = 202;             // set tank to the right
@@ -481,49 +540,49 @@ void processMainMenu()
 // To implement bouncy bullets, we need a quick and easy way to check if a
 // tile next to the current one contains a wall tile, hence wallCheck():
 
-bool wallCheck(int gridX, int gridY, int side) {
+int wallCheck(int gridX, int gridY, int side) {
   if (side == 0) {    // Check the grid location above for a wall tile
     if (gridY <= 0) {
-      return false;
+      return 0;
     }
     else if (GetTile(gridX, (gridY - 1)) == 0x25) {
-      return true;
+      return 1;
     }
     else {
-      return false;
+      return 0;
     }
   }
   else if (side == 1) {   // Check grid to the right for a wall tile
     if (gridX >= 28) {
-      return false;
+      return 0;
     }
     else if (GetTile((gridX + 1), gridY) == 0x25) {
-      return true;
+      return 1;
     }
     else {
-      return false;
+      return 0;
     }
   }
   else if (side == 2) {   // Check grid location below for a wall tile
     if (gridY >= 22) {
-      return false;
+      return 0;
     }
     else if (GetTile(gridX, (gridY + 1)) == 0x25) {
-      return true;
+      return 1;
     }
     else {
-      return false;
+      return 0;
     }
   }
   else if (side == 3) {   // Check grid to the left for a wall tile
     if (gridX <= 0) {
-      return false;
+      return 0;
     }
     else if (GetTile((gridX - 1), gridY) == 0x25) {
-      return true;
+      return 1;
     }
     else {
-      return false;
+      return 0;
     }
   }
 }
