@@ -510,7 +510,7 @@ void initMaze(void) {
   p2_tank.angle = 12;          // face left
   p2_tank.x = 26;
   p2_tank.y = 10;
-  p2_tank.vX = 1;
+  p2_tank.vX = -1;
   p2_tank.vY = 0;
   p2_tank.advance = true;
   p2_bullet.vX = -1;
