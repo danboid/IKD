@@ -337,7 +337,7 @@ void processBullets(void) {
         }
       }
     }
-    else if (p1_bullet.x <= (p1_bullet.left - 1)) {
+    else if (p1_bullet.x <= (p1_bullet.left + 1)) {
       if (p1_bullet.lside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
@@ -348,7 +348,7 @@ void processBullets(void) {
         }
       }
     }
-    else if (p1_bullet.y >= (p1_bullet.top - 1)) {
+    else if (p1_bullet.y <= (p1_bullet.top + 1)) {
       if (p1_bullet.tside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
