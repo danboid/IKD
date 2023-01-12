@@ -381,6 +381,14 @@ void processBullets(void) {
     p2_bullet.y += p2_bullet.vY * 3;
     p2_bullet.gridX = p2_bullet.x / 8;
     p2_bullet.gridY = p2_bullet.y / 8;
+    p2_bullet.top = p2_bullet.gridY * 8;
+    p2_bullet.bottom = p2_bullet.top + 8;
+    p2_bullet.left = p2_bullet.gridX * 8;
+    p2_bullet.right = p2_bullet.left + 8;
+    p2_bullet.tside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,0);
+    p2_bullet.rside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,1);
+    p2_bullet.bside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,2);
+    p2_bullet.lside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,3);
     MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
     if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= p1_tank.right &&
         p2_bullet.y >= p1_tank.top && p2_bullet.y <= p1_tank.bottom) {
@@ -403,14 +411,48 @@ void processBullets(void) {
       p1_bullet.active = false;
       p1_bullet.age = 0;
     }
-    else if (GetTile(p2_bullet.gridX, p2_bullet.gridY) == 0x25) {
-      if (bounce == true) {
-        p2_bullet.vX = -p2_bullet.vX * 0.9;
-        p2_bullet.vY = -p2_bullet.vY * 0.9;
+    else if (p2_bullet.x >= (p2_bullet.right - 1)) {
+      if (p2_bullet.rside == 1) {
+        if (bounce == true) {
+          p2_bullet.vX = p2_bullet.vX * -1;
+        }
+        else {
+          p2_bullet.active = false;
+          MapSprite2(3, blank, 0);
+        }
       }
-      else {
-        p2_bullet.active = false;
-        MapSprite2(3, blank, 0);
+    }
+    else if (p2_bullet.x <= (p2_bullet.left + 1)) {
+      if (p2_bullet.lside == 1) {
+        if (bounce == true) {
+          p2_bullet.vX = p2_bullet.vX * -1;
+        }
+        else {
+          p2_bullet.active = false;
+          MapSprite2(3, blank, 0);
+        }
+      }
+    }
+    else if (p2_bullet.y <= (p2_bullet.top + 1)) {
+      if (p2_bullet.tside == 1) {
+        if (bounce == true) {
+          p2_bullet.vY = p2_bullet.vY * -1;
+        }
+        else {
+          p2_bullet.active = false;
+          MapSprite2(3, blank, 0);
+        }
+      }
+    }
+    else if (p2_bullet.y >= (p2_bullet.bottom - 1)) {
+      if (p2_bullet.bside == 1) {
+        if (bounce == true) {
+          p2_bullet.vY = p2_bullet.vY * -1;
+        }
+        else {
+          p2_bullet.active = false;
+          MapSprite2(3, blank, 0);
+        }
       }
     }
   } else {
@@ -477,6 +519,14 @@ void initMaze(void) {
   p2_bullet.age = 0;
   p2_bullet.gridX = 25;
   p2_bullet.gridY = 10;
+  p2_bullet.top = p2_bullet.gridY * 8;
+  p2_bullet.bottom = p2_bullet.top + 8;
+  p2_bullet.left = p2_bullet.gridX * 8;
+  p2_bullet.right = p2_bullet.left + 8;
+  p2_bullet.tside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,0);
+  p2_bullet.rside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,1);
+  p2_bullet.bside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,2);
+  p2_bullet.lside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,3);
 }
 
 void drawMainMenu()
