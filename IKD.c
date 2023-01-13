@@ -635,6 +635,9 @@ int wallCheck(int gridX, int gridY, int side) {
       return 0;
     }
   }
+  else {
+    return 0;
+  }
 }
 
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
