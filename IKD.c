@@ -47,6 +47,8 @@ const char *tank1_current_sprite, *tank2_current_sprite;
 
 int Score[2] = {0, 0};
 
+int Tens[2] = {0, 0};
+
 int menu_opts[4] = {23, 24, 25, 26};
 
 int maze = 0;
@@ -312,6 +314,7 @@ void processBullets(void) {
       TriggerFx(1, 0xFF, true);
       Score[0]++;
       if (Score[0] > 9) {
+          Tens[0]++;
           Score[0] = 0;
       }
 
@@ -397,6 +400,7 @@ void processBullets(void) {
       TriggerFx(1, 0xFF, true);
       Score[1]++;
       if (Score[1] > 9) {
+          Tens[1]++;
           Score[1] = 0;
       }
 
@@ -471,14 +475,16 @@ void processTrig(void) {
 void processScore(void) {
   DrawMap2(6, 22, (numbers[Score[0]]));
   DrawMap2(18, 22, (numbers2[Score[1]]));
+  PrintHexInt(1,24,(Tens[0]));
+  PrintHexInt(23,24,(Tens[1]));
 }
 
 void initMaze(void) {
   DrawMap2(0, 0, mazes[maze]);
 
   MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
-  p1_tank.left = 8;              // set tank to the left
-  p1_tank.top = 80;             // center tank vertically
+  p1_tank.left = 8;            // set tank to the left
+  p1_tank.top = 80;            // center tank vertically
   p1_tank.right = 13;
   p1_tank.bottom = 93;
   p1_tank.angle = 4;           // face right
@@ -503,8 +509,8 @@ void initMaze(void) {
   p1_bullet.rside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,1);
 
   MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
-  p2_tank.left = 202;             // set tank to the right
-  p2_tank.top = 85;             // center tank vertically
+  p2_tank.left = 208;          // set tank to the right
+  p2_tank.top = 80;            // center tank vertically
   p2_tank.right = 210;
   p2_tank.bottom = 93;
   p2_tank.angle = 12;          // face left
