@@ -17,7 +17,16 @@ const char explode[] PROGMEM = {
 	0,PATCH_END
 };
 
+
+const char engine[] PROGMEM ={
+0,PC_WAVE,6,
+3,PC_ENV_SPEED,-10,
+0, PC_NOTE_CUT, 0,
+0,PATCH_END
+};
+
 const struct PatchStruct patches[] PROGMEM = {
   {1, NULL, fire, 0, 0},
   {1, NULL, explode, 0, 0},
+  {0, NULL, engine, 0, 0},
 };

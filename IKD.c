@@ -228,6 +228,7 @@ void processTank1(void) {
     p1_tank.x = p1_tank.left / 8;
     p1_tank.y = p1_tank.top / 8;
     wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
+    TriggerNote(2, 2, 20, 127);
     }
   }
   tank1Prev = tank1Held;
@@ -286,6 +287,7 @@ void processTank2(void) {
     p2_tank.x = p2_tank.left / 8;
     p2_tank.y = p2_tank.top / 8;
     wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
+    TriggerNote(1, 2, 20, 127);
   }
   }
   tank2Prev = tank2Held;
