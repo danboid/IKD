@@ -102,7 +102,9 @@ void initMaze(void);
 void processTrig(void);
 void processBullets(void);
 void processTank1(void);
+void processTank1Forward(void);
 void processTank2(void);
+void processTank2Forward(void);
 void processScore(void);
 void cuzeboxCOut(char str[]);
 void cuzeboxHOut(int num);
@@ -219,16 +221,12 @@ void processTank1(void) {
   }
   if (tank1Held & BTN_UP) {
     if (p1_tank.advance == true) {
-    p1_tank.left += p1_tank.vX / 2;
-    p1_tank.top += p1_tank.vY / 2;
-    p1_tank.right = p1_tank.left + 8;
-    p1_tank.bottom = p1_tank.top + 8;
-    MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
-    // Update tanks position on the tile grid
-    p1_tank.x = p1_tank.left / 8;
-    p1_tank.y = p1_tank.top / 8;
-    wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
-    TriggerNote(2, 2, 20, 127);
+      processTank1Forward();
+    }
+  }
+  if (tank1Held & BTN_B) {
+    if (p1_tank.advance == true) {
+      processTank1Forward();
     }
   }
   tank1Prev = tank1Held;
@@ -277,18 +275,13 @@ void processTank2(void) {
   }
   if (tank2Held & BTN_UP) {
     if (p2_tank.advance == true) {
-    p2_tank.left += p2_tank.vX / 2;
-    p2_tank.top += p2_tank.vY / 2;
-
-    p2_tank.right = p2_tank.left + 8;
-    p2_tank.bottom = p2_tank.top + 8;
-    MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
-    // Update tank 2's position on the tile grid
-    p2_tank.x = p2_tank.left / 8;
-    p2_tank.y = p2_tank.top / 8;
-    wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
-    TriggerNote(1, 2, 20, 127);
+      processTank2Forward();
+    }
   }
+  if (tank2Held & BTN_B) {
+    if (p2_tank.advance == true) {
+      processTank2Forward();
+    }
   }
   tank2Prev = tank2Held;
 }
@@ -479,6 +472,32 @@ void processScore(void) {
   DrawMap2(18, 22, (numbers2[Score[1]]));
   PrintHexInt(1,24,(Tens[0]));
   PrintHexInt(23,24,(Tens[1]));
+}
+
+void processTank1Forward(void) {
+  p1_tank.left += p1_tank.vX / 2;
+  p1_tank.top += p1_tank.vY / 2;
+  p1_tank.right = p1_tank.left + 8;
+  p1_tank.bottom = p1_tank.top + 8;
+  MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
+  // Update tanks position on the tile grid
+  p1_tank.x = p1_tank.left / 8;
+  p1_tank.y = p1_tank.top / 8;
+  wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
+  TriggerNote(2, 2, 20, 127);
+}
+
+void processTank2Forward(void) {
+  p2_tank.left += p2_tank.vX / 2;
+  p2_tank.top += p2_tank.vY / 2;
+  p2_tank.right = p2_tank.left + 8;
+  p2_tank.bottom = p2_tank.top + 8;
+  MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
+  // Update tank 2's position on the tile grid
+  p2_tank.x = p2_tank.left / 8;
+  p2_tank.y = p2_tank.top / 8;
+  wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
+  TriggerNote(1, 2, 20, 127);
 }
 
 void initMaze(void) {
