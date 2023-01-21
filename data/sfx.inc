@@ -25,8 +25,20 @@ const char engine[] PROGMEM ={
 0,PATCH_END
 };
 
+const char boing[] PROGMEM ={
+0,PC_WAVE,8,
+0,PC_ENV_VOL,0xE0,
+0,PC_ENV_SPEED,-20,
+0,PC_PITCH,80,
+2,PC_NOTE_DOWN,6,
+2,PC_NOTE_DOWN,6,
+2,PC_NOTE_CUT,0,
+0,PATCH_END
+};
+
 const struct PatchStruct patches[] PROGMEM = {
   {1, NULL, fire, 0, 0},
   {1, NULL, explode, 0, 0},
   {0, NULL, engine, 0, 0},
+  {0, NULL, boing, 0, 0},
 };

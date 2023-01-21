@@ -328,6 +328,7 @@ void processBullets(void) {
       if (p1_bullet.rside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
+          TriggerFx(3, 0x45, true);
         }
         else {
           p1_bullet.active = false;
@@ -339,6 +340,7 @@ void processBullets(void) {
       if (p1_bullet.lside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
+          TriggerFx(3, 0x45, true);
         }
         else {
           p1_bullet.active = false;
@@ -350,6 +352,7 @@ void processBullets(void) {
       if (p1_bullet.tside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
+          TriggerFx(3, 0x45, true);
         }
         else {
           p1_bullet.active = false;
@@ -361,6 +364,7 @@ void processBullets(void) {
       if (p1_bullet.bside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
+          TriggerFx(3, 0x45, true);
         }
         else {
           p1_bullet.active = false;
@@ -414,6 +418,7 @@ void processBullets(void) {
       if (p2_bullet.rside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
+          TriggerFx(3, 0x45, true);
         }
         else {
           p2_bullet.active = false;
@@ -425,6 +430,7 @@ void processBullets(void) {
       if (p2_bullet.lside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
+          TriggerFx(3, 0x45, true);
         }
         else {
           p2_bullet.active = false;
@@ -436,6 +442,7 @@ void processBullets(void) {
       if (p2_bullet.tside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
+          TriggerFx(3, 0x45, true);
         }
         else {
           p2_bullet.active = false;
@@ -447,6 +454,7 @@ void processBullets(void) {
       if (p2_bullet.bside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
+          TriggerFx(3, 0x45, true);
         }
         else {
           p2_bullet.active = false;
