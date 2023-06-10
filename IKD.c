@@ -714,8 +714,12 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
       p2_tank.advance = false;
     }
   }
-  else {
-    p1_tank.advance = true;
-    p2_tank.advance = true;
+  if (GetTile(nextX, nextY) == 0x0) {
+    if (tankN == 0) {
+      p1_tank.advance = true;
+    }
+    else if (tankN == 1) {
+      p2_tank.advance = true;
+    }
   }
 }
