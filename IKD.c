@@ -324,7 +324,7 @@ void processBullets(void) {
       p2_bullet.active = false;
       p2_bullet.age = 0;
     }
-    else if (p1_bullet.x >= (p1_bullet.right - 1)) {
+    else if (p1_bullet.x >= (p1_bullet.right - 2)) {
       if (p1_bullet.rside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
@@ -336,7 +336,7 @@ void processBullets(void) {
         }
       }
     }
-    else if (p1_bullet.x <= (p1_bullet.left + 1)) {
+    else if (p1_bullet.x <= (p1_bullet.left + 2)) {
       if (p1_bullet.lside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
@@ -348,7 +348,7 @@ void processBullets(void) {
         }
       }
     }
-    else if (p1_bullet.y <= (p1_bullet.top + 1)) {
+    else if (p1_bullet.y <= (p1_bullet.top + 2)) {
       if (p1_bullet.tside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
@@ -360,7 +360,7 @@ void processBullets(void) {
         }
       }
     }
-    else if (p1_bullet.y >= (p1_bullet.bottom - 1)) {
+    else if (p1_bullet.y >= (p1_bullet.bottom - 2)) {
       if (p1_bullet.bside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
@@ -414,7 +414,7 @@ void processBullets(void) {
       p1_bullet.active = false;
       p1_bullet.age = 0;
     }
-    else if (p2_bullet.x >= (p2_bullet.right - 1)) {
+    else if (p2_bullet.x >= (p2_bullet.right - 2)) {
       if (p2_bullet.rside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
@@ -426,7 +426,7 @@ void processBullets(void) {
         }
       }
     }
-    else if (p2_bullet.x <= (p2_bullet.left + 1)) {
+    else if (p2_bullet.x <= (p2_bullet.left + 2)) {
       if (p2_bullet.lside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
@@ -438,7 +438,7 @@ void processBullets(void) {
         }
       }
     }
-    else if (p2_bullet.y <= (p2_bullet.top + 1)) {
+    else if (p2_bullet.y <= (p2_bullet.top + 2)) {
       if (p2_bullet.tside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
@@ -450,7 +450,7 @@ void processBullets(void) {
         }
       }
     }
-    else if (p2_bullet.y >= (p2_bullet.bottom - 1)) {
+    else if (p2_bullet.y >= (p2_bullet.bottom - 2)) {
       if (p2_bullet.bside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
