@@ -324,6 +324,16 @@ void processBullets(void) {
       p2_bullet.active = false;
       p2_bullet.age = 0;
     }
+    else if (p1_bullet.y <= 8 || p1_bullet.y >= 168) {
+        if (bounce == true) {
+          p1_bullet.vY = p1_bullet.vY * -1;
+          TriggerFx(3, 0x45, true);
+        }
+        else {
+          p1_bullet.active = false;
+          MapSprite2(1, blank, 0);
+        }
+    }
     else if (p1_bullet.x >= (p1_bullet.right - 2)) {
       if (p1_bullet.rside == 1) {
         if (bounce == true) {
@@ -413,6 +423,16 @@ void processBullets(void) {
       MapSprite2(0, tank1_current_sprite, 0);
       p1_bullet.active = false;
       p1_bullet.age = 0;
+    }
+    else if (p2_bullet.y <= 8 || p2_bullet.y >= 168) {
+        if (bounce == true) {
+          p2_bullet.vY = p2_bullet.vY * -1;
+          TriggerFx(3, 0x45, true);
+        }
+        else {
+          p2_bullet.active = false;
+          MapSprite2(3, blank, 0);
+        }
     }
     else if (p2_bullet.x >= (p2_bullet.right - 2)) {
       if (p2_bullet.rside == 1) {
