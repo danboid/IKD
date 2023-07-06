@@ -97,6 +97,7 @@ struct tankStruct {
 
 struct tankStruct p1_tank, p2_tank;
 
+void hyperTanks(void);
 void initIKD(void);
 void initMaze(void);
 void processTrig(void);
@@ -154,6 +155,10 @@ int main() {
         processTank2();
         processBullets();
         processScore();
+        if(IsPowerSwitchPressed())
+        {
+          hyperTanks();
+        }
       }
     }
     if(game_state == MAIN_MENU)
@@ -759,4 +764,42 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
       p2_tank.advance = true;
     }
   }
+}
+
+void hyperTanks(void) {
+  //Hyper tank 2
+  p2_tank.x = rand() % 27;
+  p2_tank.y = rand() % 21;
+  while (GetTile(p2_tank.x, p2_tank.y) == 0x25) {
+    p2_tank.x = rand() % 27;
+    p2_tank.y = rand() % 21;
+  }
+  p2_tank.left = p2_tank.x * 8;
+  p2_tank.top = p2_tank.y * 8;
+  p2_tank.right = p2_tank.left + 8;
+  p2_tank.bottom = p2_tank.top + 8;
+  p2_tank.angle = rand() % 15;
+  tank2_current_sprite = tank2_sprites[p2_tank.angle];
+  processTrig();
+  MapSprite2(2, tank2_current_sprite, 0);
+  p2_bullet.active = false;
+  p2_bullet.age = 0;
+
+  //Hyper tank 1
+  p1_tank.x = rand() % 27;
+  p1_tank.y = rand() % 21;
+  while (GetTile(p1_tank.x, p1_tank.y) == 0x25) {
+    p1_tank.x = rand() % 27;
+    p1_tank.y = rand() % 21;
+  }
+  p1_tank.left = p1_tank.x * 8;
+  p1_tank.top = p1_tank.y * 8;
+  p1_tank.right = p1_tank.left + 8;
+  p1_tank.bottom = p1_tank.top + 8;
+  p1_tank.angle = rand() % 15;
+  tank1_current_sprite = tank1_sprites[p1_tank.angle];
+  processTrig();
+  MapSprite2(0, tank1_current_sprite, 0);
+  p1_bullet.active = false;
+  p1_bullet.age = 0;
 }

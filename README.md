@@ -28,3 +28,13 @@ $ make
 ```
 
 If you don't have a real Uzebox to play it on, the recommended emulator is [cuzebox](https://github.com/Jubatian/cuzebox).
+
+## Controls
+
+**A** - shoot
+
+**B** or **UP** - move forward
+
+**LEFT** or **RIGHT** - rotate tank
+
+**POWER** - hyper space (both tanks)
