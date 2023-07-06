@@ -599,7 +599,7 @@ void drawMainMenu()
   else {
     Print(10,26,PSTR("BOUNCE OFF"));
   }
-  SetTile(7,menu_opts[maze],5);
+  SetTile(7,menu_opts[maze],38);
 }
 
 void processMainMenu()
