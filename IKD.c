@@ -609,6 +609,7 @@ void processMainMenu()
   if (tank1Held!=tank1Prev) {
     if (tank1Held & BTN_DOWN) {
       maze++;
+      TriggerFx(3, 0x45, true);
       if (maze > 3) {
         maze = 0;
       }
@@ -616,6 +617,7 @@ void processMainMenu()
     }
     if (tank1Held & BTN_UP) {
       maze--;
+      TriggerFx(3, 0x45, true);
       if (maze < 0) {
         maze = 3;
       }
@@ -624,18 +626,20 @@ void processMainMenu()
     if (tank1Held & BTN_LEFT) {
       if (maze == 3) {
         bounce = !bounce;
+        TriggerFx(3, 0x45, true);
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_RIGHT) {
       if (maze == 3) {
         bounce = !bounce;
+        TriggerFx(3, 0x45, true);
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_START) {
       if (maze != 3) {
-      game_state = GAME;
+        game_state = GAME;
       }
     }
     tank1Prev = tank1Held;
