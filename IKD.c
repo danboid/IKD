@@ -313,8 +313,15 @@ void processBullets(void) {
           Score[0] = 0;
       }
 
-      p2_tank.left = rand() % 210;
-      p2_tank.top = rand() % 160;
+      p2_tank.x = rand() % 27;
+      p2_tank.y = rand() % 21;
+      // This loop stops the tank respawning on a wall
+      while (GetTile(p2_tank.x, p2_tank.y) == 0x25) {
+        p2_tank.x = rand() % 27;
+        p2_tank.y = rand() % 21;
+      }
+      p2_tank.left = p2_tank.x * 8;
+      p2_tank.top = p2_tank.y * 8;
       p2_tank.right = p2_tank.left + 8;
       p2_tank.bottom = p2_tank.top + 8;
       p2_tank.angle = rand() % 15;
@@ -413,8 +420,14 @@ void processBullets(void) {
           Score[1] = 0;
       }
 
-      p1_tank.left = rand() % 210;
-      p1_tank.top = rand() % 160;
+      p1_tank.x = rand() % 27;
+      p1_tank.y = rand() % 21;
+      while (GetTile(p1_tank.x, p1_tank.y) == 0x25) {
+        p1_tank.x = rand() % 27;
+        p1_tank.y = rand() % 21;
+      }
+      p1_tank.left = p1_tank.x * 8;
+      p1_tank.top = p1_tank.y * 8;
       p1_tank.right = p1_tank.left + 8;
       p1_tank.bottom = p1_tank.top + 8;
       p1_tank.angle = rand() % 15;
