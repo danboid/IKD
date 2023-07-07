@@ -155,7 +155,7 @@ int main() {
         processTank2();
         processBullets();
         processScore();
-        if(IsPowerSwitchPressed())
+        if(!IsRunningInEmulator() && IsPowerSwitchPressed())
         {
           hyperTanks();
         }
