@@ -28,7 +28,7 @@ int tank2Held = 0;
 int tank2Pressed = 0;
 int tank2Released = 0;
 
-int seed = 0;
+int seed, maze, nextX, nextY = 0;
 
 float angles[] = {0,   23,  45,  68,  90,  113, 135, 158,
                   180, 203, 225, 248, 270, 293, 315, 338};
@@ -50,8 +50,6 @@ int Score[2] = {0, 0};
 int Tens[2] = {0, 0};
 
 int menu_opts[4] = {23, 24, 25, 26};
-
-int maze = 0;
 
 const char *mazes[3] = {maze0, maze1, maze2};
 
@@ -720,7 +718,6 @@ int wallCheck(int gridX, int gridY, int side) {
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
 
   // Calculate the next position based on the tank's angle
-  int nextX, nextY;
   if (tankAngle == 0) {
     nextX = tankX;
     nextY = tankY - 1;
