@@ -720,7 +720,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
   // Calculate the next position based on the tank's angle
   if (tankAngle == 0) {
     nextX = tankX;
-    nextY = tankY - 1;
+    nextY = tankY;
   } else if (tankAngle == 1 || tankAngle == 2 || tankAngle == 3) {
     nextX = tankX + 1;
     nextY = tankY - 1;
@@ -737,7 +737,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     nextX = tankX - 1;
     nextY = tankY + 1;
   } else if (tankAngle == 12) {
-    nextX = tankX - 1;
+    nextX = tankX;
     nextY = tankY;
   } else if (tankAngle == 13 || tankAngle == 14 || tankAngle == 15) {
     nextX = tankX - 1;
