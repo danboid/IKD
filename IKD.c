@@ -49,9 +49,9 @@ int Score[2] = {0, 0};
 
 int Tens[2] = {0, 0};
 
-int menu_opts[4] = {23, 24, 25, 26};
+int menu_opts[5] = {22, 23, 24, 25, 26};
 
-const char *mazes[3] = {maze0, maze1, maze2};
+const char *mazes[4] = {maze0, maze1, maze2, maze3};
 
 const char *numbers[10] = {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9};
 
@@ -618,9 +618,10 @@ void drawMainMenu()
   Print(12,1,PSTR("IKD"));
   Print(1,5,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
   Print(5,9,PSTR("BY DAN MACDONALD"));
-  Print(10,23,PSTR("NO MAZE"));
-  Print(10,24,PSTR("MAZE #1"));
-  Print(10,25,PSTR("MAZE #2"));
+  Print(10,22,PSTR("NO MAZE"));
+  Print(10,23,PSTR("MAZE #1"));
+  Print(10,24,PSTR("MAZE #2"));
+  Print(10,25,PSTR("MAZE #3"));
   if (bounce == true) {
   Print(10,26,PSTR("BOUNCE ON"));
   }
@@ -638,7 +639,7 @@ void processMainMenu()
     if (tank1Held & BTN_DOWN) {
       maze++;
       TriggerNote(2, 3, 75, 127);
-      if (maze > 3) {
+      if (maze > 4) {
         maze = 0;
       }
       drawMainMenu();
@@ -647,26 +648,26 @@ void processMainMenu()
       maze--;
       TriggerNote(2, 3, 75, 127);
       if (maze < 0) {
-        maze = 3;
+        maze = 4;
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_LEFT) {
-      if (maze == 3) {
+      if (maze == 4) {
         bounce = !bounce;
         TriggerNote(2, 3, 75, 127);
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_RIGHT) {
-      if (maze == 3) {
+      if (maze == 4) {
         bounce = !bounce;
         TriggerNote(2, 3, 75, 127);
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_START) {
-      if (maze != 3) {
+      if (maze != 4) {
         game_state = GAME;
       }
     }
