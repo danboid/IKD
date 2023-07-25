@@ -28,7 +28,7 @@ int tank2Held = 0;
 int tank2Pressed = 0;
 int tank2Released = 0;
 
-int seed = 0;
+int seed, maze, nextX, nextY = 0;
 
 float angles[] = {0,   23,  45,  68,  90,  113, 135, 158,
                   180, 203, 225, 248, 270, 293, 315, 338};
@@ -49,11 +49,9 @@ int Score[2] = {0, 0};
 
 int Tens[2] = {0, 0};
 
-int menu_opts[4] = {23, 24, 25, 26};
+int menu_opts[5] = {22, 23, 24, 25, 26};
 
-int maze = 0;
-
-const char *mazes[3] = {maze0, maze1, maze2};
+const char *mazes[4] = {maze0, maze1, maze2, maze3};
 
 const char *numbers[10] = {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9};
 
@@ -76,6 +74,7 @@ struct bulletStruct {
   int rside;
   int bside;
   int lside;
+  int pitch;
 };
 
 struct bulletStruct p1_bullet, p2_bullet;
@@ -219,6 +218,7 @@ void processTank1(void) {
       p1_bullet.vX = p1_tank.vX;
       p1_bullet.vY = p1_tank.vY;
       p1_bullet.active = true;
+      p1_bullet.pitch = 75;
       MapSprite2(1, bullet, 0); // map bullet
       MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
       TriggerFx(0, 0xFF, true);
@@ -271,8 +271,8 @@ void processTank2(void) {
       p2_bullet.y = p2_tank.top;
       p2_bullet.vX = p2_tank.vX;
       p2_bullet.vY = p2_tank.vY;
-
       p2_bullet.active = true;
+      p2_bullet.pitch = 75;
       MapSprite2(3, bullet, 0); // map bullet
       MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
       TriggerFx(0, 0xFF, true);
@@ -339,7 +339,8 @@ void processBullets(void) {
     else if (p1_bullet.y <= 8 || p1_bullet.y >= 168) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          p1_bullet.pitch++;
         }
         else {
           p1_bullet.active = false;
@@ -350,7 +351,8 @@ void processBullets(void) {
       if (p1_bullet.rside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          p1_bullet.pitch++;
         }
         else {
           p1_bullet.active = false;
@@ -362,7 +364,8 @@ void processBullets(void) {
       if (p1_bullet.lside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          p1_bullet.pitch++;
         }
         else {
           p1_bullet.active = false;
@@ -374,7 +377,8 @@ void processBullets(void) {
       if (p1_bullet.tside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          p1_bullet.pitch++;
         }
         else {
           p1_bullet.active = false;
@@ -386,7 +390,8 @@ void processBullets(void) {
       if (p1_bullet.bside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          p1_bullet.pitch++;
         }
         else {
           p1_bullet.active = false;
@@ -445,7 +450,8 @@ void processBullets(void) {
     else if (p2_bullet.y <= 8 || p2_bullet.y >= 168) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          p2_bullet.pitch++;
         }
         else {
           p2_bullet.active = false;
@@ -456,7 +462,8 @@ void processBullets(void) {
       if (p2_bullet.rside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          p2_bullet.pitch++;
         }
         else {
           p2_bullet.active = false;
@@ -468,7 +475,8 @@ void processBullets(void) {
       if (p2_bullet.lside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          p2_bullet.pitch++;
         }
         else {
           p2_bullet.active = false;
@@ -480,7 +488,8 @@ void processBullets(void) {
       if (p2_bullet.tside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          p2_bullet.pitch++;
         }
         else {
           p2_bullet.active = false;
@@ -492,7 +501,8 @@ void processBullets(void) {
       if (p2_bullet.bside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerFx(3, 0x45, true);
+          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          p2_bullet.pitch++;
         }
         else {
           p2_bullet.active = false;
@@ -608,9 +618,10 @@ void drawMainMenu()
   Print(12,1,PSTR("IKD"));
   Print(1,5,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
   Print(5,9,PSTR("BY DAN MACDONALD"));
-  Print(10,23,PSTR("NO MAZE"));
-  Print(10,24,PSTR("MAZE #1"));
-  Print(10,25,PSTR("MAZE #2"));
+  Print(10,22,PSTR("NO MAZE"));
+  Print(10,23,PSTR("MAZE #1"));
+  Print(10,24,PSTR("MAZE #2"));
+  Print(10,25,PSTR("MAZE #3"));
   if (bounce == true) {
   Print(10,26,PSTR("BOUNCE ON"));
   }
@@ -627,36 +638,36 @@ void processMainMenu()
   if (tank1Held!=tank1Prev) {
     if (tank1Held & BTN_DOWN) {
       maze++;
-      TriggerFx(3, 0x45, true);
-      if (maze > 3) {
+      TriggerNote(2, 3, 75, 127);
+      if (maze > 4) {
         maze = 0;
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_UP) {
       maze--;
-      TriggerFx(3, 0x45, true);
+      TriggerNote(2, 3, 75, 127);
       if (maze < 0) {
-        maze = 3;
+        maze = 4;
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_LEFT) {
-      if (maze == 3) {
+      if (maze == 4) {
         bounce = !bounce;
-        TriggerFx(3, 0x45, true);
+        TriggerNote(2, 3, 75, 127);
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_RIGHT) {
-      if (maze == 3) {
+      if (maze == 4) {
         bounce = !bounce;
-        TriggerFx(3, 0x45, true);
+        TriggerNote(2, 3, 75, 127);
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_START) {
-      if (maze != 3) {
+      if (maze != 4) {
         game_state = GAME;
       }
     }
@@ -720,10 +731,9 @@ int wallCheck(int gridX, int gridY, int side) {
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
 
   // Calculate the next position based on the tank's angle
-  int nextX, nextY;
   if (tankAngle == 0) {
     nextX = tankX;
-    nextY = tankY - 1;
+    nextY = tankY;
   } else if (tankAngle == 1 || tankAngle == 2 || tankAngle == 3) {
     nextX = tankX + 1;
     nextY = tankY - 1;
@@ -740,7 +750,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     nextX = tankX - 1;
     nextY = tankY + 1;
   } else if (tankAngle == 12) {
-    nextX = tankX - 1;
+    nextX = tankX;
     nextY = tankY;
   } else if (tankAngle == 13 || tankAngle == 14 || tankAngle == 15) {
     nextX = tankX - 1;
