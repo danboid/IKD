@@ -16,7 +16,7 @@
 
 #include "data/patches.inc"
 #include "data/tileset.inc"
-#include "data/maps.inc"
+//#include "data/maps.inc"
 #include "data/music-compressed.inc"
 
 int tank1Prev = 0;     // Previous button
