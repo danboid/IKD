@@ -125,7 +125,7 @@ UNAME := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
 size: ${TARGET}
 	@echo
-@avr-size -C --mcu=${MCU} ${TARGET}
+	@avr-size -C --mcu=${MCU} ${TARGET}
 
 ## Clean target
 .PHONY: clean
