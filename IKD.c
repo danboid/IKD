@@ -14,9 +14,10 @@
 #include <stdlib.h>
 #include <uzebox.h>
 
-#include "data/sfx.inc"
+#include "data/patches.inc"
 #include "data/tileset.inc"
-#include "data/font-8x8.inc"
+//#include "data/maps.inc"
+#include "data/music-compressed.inc"
 
 int tank1Prev = 0;     // Previous button
 int tank1Held = 0;     // buttons that are held right now
@@ -33,6 +34,8 @@ int seed, maze, nextX, nextY = 0;
 float angles[] = {0,   23,  45,  68,  90,  113, 135, 158,
                   180, 203, 225, 248, 270, 293, 315, 338};
 
+#define WALL_TILE       0x64
+
 const char *tank1_sprites[16] = {tank1_000, tank1_023, tank1_045, tank1_068,
                                  tank1_090, tank1_113, tank1_135, tank1_158,
                                  tank1_180, tank1_203, tank1_225, tank1_248,
@@ -45,11 +48,11 @@ const char *tank2_sprites[16] = {tank2_000, tank2_023, tank2_045, tank2_068,
 
 const char *tank1_current_sprite, *tank2_current_sprite;
 
-int Score[2] = {0, 0};
+unsigned char Score[2] = {0, 0};
 
-int Tens[2] = {0, 0};
+unsigned char Tens[2] = {0, 0};
 
-int menu_opts[5] = {22, 23, 24, 25, 26};
+const unsigned char menu_opts[5] PROGMEM = {22, 23, 24, 25, 26};
 
 const char *mazes[4] = {maze0, maze1, maze2, maze3};
 
@@ -164,22 +167,34 @@ int main() {
     {
       // Menu code here
       initIKD();
+      if(!IsSongPlaying()){
+                StartSong(commando);/*TriggerFx(SFX_FIRE,255,1);WaitVsync(60);TriggerFx(SFX_EXPLODE,255,1);WaitVsync(60);TriggerFx(SFX_ENGINE,255,1);WaitVsync(60);TriggerFx(SFX_BOING,255,1);WaitVsync(60);*/}
       drawMainMenu();
     }
     while(game_state == MAIN_MENU)
-		{
-			WaitVsync(1);
-			processMainMenu();
+                {
+                        WaitVsync(1);
+                        processMainMenu();
             drawMainMenu();
-		}
+                }
+                StopSong();
+                FadeOut(1,1);
+                FadeIn(3,0);
+                while(GetMasterVolume() > 16){
+                        SetMasterVolume(GetMasterVolume()-16);
+                        WaitVsync(1);
+                }
+                StopSong();
+                SetMasterVolume(IKD_MASTER_VOL);
   }
 }
 
 void initIKD(void) {
   InitMusicPlayer(patches);
+  SetMasterVolume(IKD_MASTER_VOL);
   SetSpritesTileTable(tileset);
   SetTileTable(tileset); // Tile set to use for ClearVram()
-  SetFontTilesIndex(TILESET_SIZE);
+  SetFontTilesIndex(0);
   ClearVram();           // fill entire screen with first tile in the tileset
 }
 
@@ -221,7 +236,7 @@ void processTank1(void) {
       p1_bullet.pitch = 75;
       MapSprite2(1, bullet, 0); // map bullet
       MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
-      TriggerFx(0, 0xFF, true);
+      TriggerFx(SFX_FIRE, 0xFF, true);
     }
   }
   if (tank1Held & BTN_UP) {
@@ -275,7 +290,7 @@ void processTank2(void) {
       p2_bullet.pitch = 75;
       MapSprite2(3, bullet, 0); // map bullet
       MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
-      TriggerFx(0, 0xFF, true);
+      TriggerFx(SFX_FIRE, 0xFF, true);
     }
   }
   if (tank2Held & BTN_UP) {
@@ -311,7 +326,7 @@ void processBullets(void) {
         p1_bullet.y >= p2_tank.top && p1_bullet.y <= p2_tank.bottom) {
       p1_bullet.active = false;
       MapSprite2(1, blank, 0);
-      TriggerFx(1, 0xFF, true);
+      TriggerFx(SFX_EXPLODE, 0xFF, true);
       Score[0]++;
       if (Score[0] > 9) {
           Tens[0]++;
@@ -321,7 +336,7 @@ void processBullets(void) {
       p2_tank.x = rand() % 27;
       p2_tank.y = rand() % 21;
       // This loop stops the tank respawning on a wall
-      while (GetTile(p2_tank.x, p2_tank.y) == 0x25) {
+      while (GetTile(p2_tank.x, p2_tank.y) == WALL_TILE) {
         p2_tank.x = rand() % 27;
         p2_tank.y = rand() % 21;
       }
@@ -339,7 +354,7 @@ void processBullets(void) {
     else if (p1_bullet.y <= 8 || p1_bullet.y >= 168) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -351,7 +366,7 @@ void processBullets(void) {
       if (p1_bullet.rside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
-          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -364,7 +379,7 @@ void processBullets(void) {
       if (p1_bullet.lside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
-          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -377,7 +392,7 @@ void processBullets(void) {
       if (p1_bullet.tside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -390,7 +405,7 @@ void processBullets(void) {
       if (p1_bullet.bside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(2, 3, p1_bullet.pitch, 127);
+          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -423,7 +438,7 @@ void processBullets(void) {
         p2_bullet.y >= p1_tank.top && p2_bullet.y <= p1_tank.bottom) {
       p2_bullet.active = false;
       MapSprite2(3, blank, 0);
-      TriggerFx(1, 0xFF, true);
+      TriggerFx(SFX_EXPLODE, 0xFF, true);
       Score[1]++;
       if (Score[1] > 9) {
           Tens[1]++;
@@ -432,7 +447,7 @@ void processBullets(void) {
 
       p1_tank.x = rand() % 27;
       p1_tank.y = rand() % 21;
-      while (GetTile(p1_tank.x, p1_tank.y) == 0x25) {
+      while (GetTile(p1_tank.x, p1_tank.y) == WALL_TILE) {
         p1_tank.x = rand() % 27;
         p1_tank.y = rand() % 21;
       }
@@ -450,7 +465,7 @@ void processBullets(void) {
     else if (p2_bullet.y <= 8 || p2_bullet.y >= 168) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -462,7 +477,7 @@ void processBullets(void) {
       if (p2_bullet.rside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
-          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -475,7 +490,7 @@ void processBullets(void) {
       if (p2_bullet.lside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
-          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -488,7 +503,7 @@ void processBullets(void) {
       if (p2_bullet.tside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -501,7 +516,7 @@ void processBullets(void) {
       if (p2_bullet.bside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(2, 3, p2_bullet.pitch, 127);
+          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -540,7 +555,7 @@ void processTank1Forward(void) {
   p1_tank.x = p1_tank.left / 8;
   p1_tank.y = p1_tank.top / 8;
   wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
-  TriggerNote(2, 2, 20, 127);
+  TriggerFx(SFX_ENGINE, 127, 0);//TriggerNote(SFX_ENGINE, 2, 20, 127);
 }
 
 void processTank2Forward(void) {
@@ -553,7 +568,7 @@ void processTank2Forward(void) {
   p2_tank.x = p2_tank.left / 8;
   p2_tank.y = p2_tank.top / 8;
   wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
-  TriggerNote(1, 2, 20, 127);
+  TriggerFx(SFX_ENGINE, 127, 0);//TriggerNote(SFX_ENGINE, 2, 20, 127);
 }
 
 void initMaze(void) {
@@ -615,20 +630,22 @@ void initMaze(void) {
 void drawMainMenu()
 {
   ClearVram();
-  Print(12,1,PSTR("IKD"));
-  Print(1,5,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
-  Print(5,9,PSTR("BY DAN MACDONALD"));
+  //Print(12,1,PSTR("IKD"));
+  Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
+  Print(7,18,PSTR("BY DAN MACDONALD"));
   Print(10,22,PSTR("NO MAZE"));
   Print(10,23,PSTR("MAZE #1"));
   Print(10,24,PSTR("MAZE #2"));
   Print(10,25,PSTR("MAZE #3"));
+  DrawMap2(8,4,title_map);
+
   if (bounce == true) {
   Print(10,26,PSTR("BOUNCE ON"));
   }
   else {
     Print(10,26,PSTR("BOUNCE OFF"));
   }
-  SetTile(7,menu_opts[maze],38);
+  SetTile(7,pgm_read_byte(&menu_opts[maze]),101);
 }
 
 void processMainMenu()
@@ -638,7 +655,7 @@ void processMainMenu()
   if (tank1Held!=tank1Prev) {
     if (tank1Held & BTN_DOWN) {
       maze++;
-      TriggerNote(2, 3, 75, 127);
+      TriggerNote(SFX_BOING, 3, 75, 127);
       if (maze > 4) {
         maze = 0;
       }
@@ -646,7 +663,7 @@ void processMainMenu()
     }
     if (tank1Held & BTN_UP) {
       maze--;
-      TriggerNote(2, 3, 75, 127);
+      TriggerNote(SFX_BOING, 3, 75, 127);
       if (maze < 0) {
         maze = 4;
       }
@@ -655,14 +672,14 @@ void processMainMenu()
     if (tank1Held & BTN_LEFT) {
       if (maze == 4) {
         bounce = !bounce;
-        TriggerNote(2, 3, 75, 127);
+        TriggerNote(SFX_BOING, 3, 75, 127);
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_RIGHT) {
       if (maze == 4) {
         bounce = !bounce;
-        TriggerNote(2, 3, 75, 127);
+        TriggerNote(SFX_BOING, 3, 75, 127);
       }
       drawMainMenu();
     }
@@ -683,7 +700,7 @@ int wallCheck(int gridX, int gridY, int side) {
     if (gridY <= 0) {
       return 0;
     }
-    else if (GetTile(gridX, (gridY - 1)) == 0x25) {
+    else if (GetTile(gridX, (gridY - 1)) == WALL_TILE) {
       return 1;
     }
     else {
@@ -694,7 +711,7 @@ int wallCheck(int gridX, int gridY, int side) {
     if (gridX >= 28) {
       return 0;
     }
-    else if (GetTile((gridX + 1), gridY) == 0x25) {
+    else if (GetTile((gridX + 1), gridY) == WALL_TILE) {
       return 1;
     }
     else {
@@ -705,7 +722,7 @@ int wallCheck(int gridX, int gridY, int side) {
     if (gridY >= 22) {
       return 0;
     }
-    else if (GetTile(gridX, (gridY + 1)) == 0x25) {
+    else if (GetTile(gridX, (gridY + 1)) == WALL_TILE) {
       return 1;
     }
     else {
@@ -716,7 +733,7 @@ int wallCheck(int gridX, int gridY, int side) {
     if (gridX <= 0) {
       return 0;
     }
-    else if (GetTile((gridX - 1), gridY) == 0x25) {
+    else if (GetTile((gridX - 1), gridY) == WALL_TILE) {
       return 1;
     }
     else {
@@ -758,7 +775,7 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
   }
 
   // Check if the next tank position is occupied by a wall
-  if (GetTile(nextX, nextY) == 0x25) {
+  if (GetTile(nextX, nextY) == WALL_TILE) {
     if (tankN == 0) {
       p1_tank.advance = false;
     }
@@ -780,7 +797,7 @@ void hyperTanks(void) {
   //Hyper tank 2
   p2_tank.x = rand() % 27;
   p2_tank.y = rand() % 21;
-  while (GetTile(p2_tank.x, p2_tank.y) == 0x25) {
+  while (GetTile(p2_tank.x, p2_tank.y) == WALL_TILE) {
     p2_tank.x = rand() % 27;
     p2_tank.y = rand() % 21;
   }
@@ -798,7 +815,7 @@ void hyperTanks(void) {
   //Hyper tank 1
   p1_tank.x = rand() % 27;
   p1_tank.y = rand() % 21;
-  while (GetTile(p1_tank.x, p1_tank.y) == 0x25) {
+  while (GetTile(p1_tank.x, p1_tank.y) == WALL_TILE) {
     p1_tank.x = rand() % 27;
     p1_tank.y = rand() % 21;
   }
