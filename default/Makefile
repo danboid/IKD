@@ -72,50 +72,50 @@ all: $(RESOURCES) $(TARGET) $(GAME).hex $(GAME).eep $(GAME).lss $(GAME).uze size
 
 ## Rebuild graphics resources
 ../data/tileset.inc: ../data/tileset.png ../data/tileset.xml
-        $(UZEBIN_DIR)/gconvert ../data/tileset.xml
+	$(UZEBIN_DIR)/gconvert ../data/tileset.xml
 
 ## Rebuild music resources
 ../data/commando-uncompressed.inc: ../data/commando.mid
-        $(UZEBIN_DIR)/midiconv -f 8 ../data/commando.mid ../data/commando-uncompressed.inc -vcommando_uncompressed
+	$(UZEBIN_DIR)/midiconv -f 8 ../data/commando.mid ../data/commando-uncompressed.inc -vcommando_uncompressed
 
 ../data/music-compressed.inc: ../data/commando-uncompressed.inc ../data/music-compress.cfg
-        $(UZEBIN_DIR)/mconvert ../data/music-compress.cfg
+	$(UZEBIN_DIR)/mconvert ../data/music-compress.cfg
 
 ## Compile Kernel files
 uzeboxVideoEngineCore.o: $(KERNEL_DIR)/uzeboxVideoEngineCore.s
-        $(CC) $(INCLUDES) $(ASMFLAGS) -c  $<
+	$(CC) $(INCLUDES) $(ASMFLAGS) -c  $<
 
 uzeboxSoundEngineCore.o: $(KERNEL_DIR)/uzeboxSoundEngineCore.s
-        $(CC) $(INCLUDES) $(ASMFLAGS) -c  $<
+	$(CC) $(INCLUDES) $(ASMFLAGS) -c  $<
 
 uzeboxCore.o: $(KERNEL_DIR)/uzeboxCore.c
-        $(CC) $(INCLUDES) $(CFLAGS) -c  $<
+	$(CC) $(INCLUDES) $(CFLAGS) -c  $<
 
 uzeboxSoundEngine.o: $(KERNEL_DIR)/uzeboxSoundEngine.c
-        $(CC) $(INCLUDES) $(CFLAGS) -c  $<
+	$(CC) $(INCLUDES) $(CFLAGS) -c  $<
 
 uzeboxVideoEngine.o: $(KERNEL_DIR)/uzeboxVideoEngine.c
-        $(CC) $(INCLUDES) $(CFLAGS) -c  $<
+	$(CC) $(INCLUDES) $(CFLAGS) -c  $<
 
 ## Compile game sources
 $(GAME).o: ../IKD.c
-        $(CC) $(INCLUDES) $(CFLAGS) -c  $<
-
+	$(CC) $(INCLUDES) $(CFLAGS) -c  $<
+	
 ##Link
 $(TARGET): $(OBJECTS)
-         $(CC) $(LDFLAGS) $(OBJECTS) $(LINKONLYOBJECTS) $(LIBDIRS) $(LIBS) -o $(TARGET)
+	$(CC) $(LDFLAGS) $(OBJECTS) $(LINKONLYOBJECTS) $(LIBDIRS) $(LIBS) -o $(TARGET)
 
 %.hex: $(TARGET)
-        avr-objcopy -O ihex $(HEX_FLASH_FLAGS)  $< $@
+	avr-objcopy -O ihex $(HEX_FLASH_FLAGS)  $< $@
 
 %.eep: $(TARGET)
-        -avr-objcopy $(HEX_EEPROM_FLAGS) -O ihex $< $@ || exit 0
+	-avr-objcopy $(HEX_EEPROM_FLAGS) -O ihex $< $@ || exit 0
 
 %.lss: $(TARGET)
-        avr-objdump -h -S $< > $@
+	avr-objdump -h -S $< > $@
 
 %.uze: $(TARGET)
-        -$(UZEBIN_DIR)/packrom $(GAME).hex $@ $(INFO)
+	-$(UZEBIN_DIR)/packrom $(GAME).hex $@ $(INFO)
 
 UNAME := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 #AVRSIZEFLAGS := -A ${TARGET}
@@ -124,13 +124,13 @@ UNAME := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 #endif
 
 size: ${TARGET}
-        @echo
-        @avr-size -C --mcu=${MCU} ${TARGET}
+	@echo
+@avr-size -C --mcu=${MCU} ${TARGET}
 
 ## Clean target
 .PHONY: clean
 clean:
-        -rm -rf $(RESOURCES) $(OBJECTS) $(GAME).* dep/* *.uze
+	-rm -rf $(RESOURCES) $(OBJECTS) $(GAME).* dep/* *.uze
 
 
 ## Other dependencies
