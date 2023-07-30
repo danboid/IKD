@@ -47,68 +47,68 @@ const char patch02[] PROGMEM ={//hats
 };
 
 const char patch03[] PROGMEM ={//tom tom low(channel 5)
-//0,PC_WAVE,4,
-0,PC_ENV_VOL,240,
-0,PC_PITCH,59,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,1,
-1,PC_NOTE_DOWN,1,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_CUT,0,
-0,PATCH_END
+        //0,PC_WAVE,4,
+        0,PC_ENV_VOL,240,
+        0,PC_PITCH,59,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,1,
+        1,PC_NOTE_DOWN,1,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_CUT,0,
+        0,PATCH_END
   };
 
 const char patch04[] PROGMEM ={//tom tom high(channel 5)
-//0,PC_WAVE,4,
-0,PC_ENV_VOL,240,
-0,PC_PITCH,60,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,1,
-1,PC_NOTE_DOWN,1,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_CUT,0,
-0,PATCH_END
+        //0,PC_WAVE,4,
+        0,PC_ENV_VOL,240,
+        0,PC_PITCH,60,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,1,
+        1,PC_NOTE_DOWN,1,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_CUT,0,
+        0,PATCH_END
   };
 
 const char patch05[] PROGMEM ={//crash 1
-0,PC_NOISE_PARAMS,2,
-0,PC_ENV_VOL,255,
-0,PC_ENV_SPEED,-12,
-1,PC_NOISE_PARAMS,1,
-1,PC_NOISE_PARAMS,2,
-2,PC_NOISE_PARAMS,1,
-5,PC_ENV_SPEED,-24,
-64,PC_NOTE_CUT,0,
-0,PATCH_END
+        0,PC_NOISE_PARAMS,2,
+        0,PC_ENV_VOL,255,
+        0,PC_ENV_SPEED,-12,
+        1,PC_NOISE_PARAMS,1,
+        1,PC_NOISE_PARAMS,2,
+        2,PC_NOISE_PARAMS,1,
+        5,PC_ENV_SPEED,-24,
+        64,PC_NOTE_CUT,0,
+        0,PATCH_END
   };
 
 const char patch06[] PROGMEM ={//crash 2
-0,PC_NOISE_PARAMS,9,
-0,PC_ENV_VOL,255,
-1,PC_NOISE_PARAMS,12,
-1,PC_ENV_SPEED,-12,
-1,PC_ENV_SPEED,-24,
-1,PC_ENV_SPEED,-30,
-64,PC_NOTE_CUT,0,
-0,PATCH_END
+        0,PC_NOISE_PARAMS,9,
+        0,PC_ENV_VOL,255,
+        1,PC_NOISE_PARAMS,12,
+        1,PC_ENV_SPEED,-12,
+        1,PC_ENV_SPEED,-24,
+        1,PC_ENV_SPEED,-30,
+        64,PC_NOTE_CUT,0,
+        0,PATCH_END
   };
 
 const char patch07[] PROGMEM ={//bass guitar normal(bass-envelope.raw 8 frames from attack to sustain, 1 frame release to silence)
@@ -139,10 +139,10 @@ const char patch08[] PROGMEM ={//bass guitar fast bridge section
 
 const char patch09[] PROGMEM ={//rythm modulated accent
 0,PC_WAVE,8,
-0,PC_ENV_VOL,100,
+0,PC_ENV_VOL,100-20,
 0,PC_TREMOLO_RATE,120,
 0,PC_TREMOLO_LEVEL,128,
-0,PC_ENV_SPEED,42,
+0,PC_ENV_SPEED,42-10,
 2,PC_ENV_SPEED,-2,
 0,PC_LOOP_START,23,
 1,PC_WAVE,9,
@@ -791,63 +791,63 @@ const char patch32[] PROGMEM ={//lead depth2
   };
 
 const char patch33[] PROGMEM ={//tom tom low(channel 2)
-0,PC_WAVE,4,
-0,PC_ENV_VOL,240,
-0,PC_PITCH,59,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,1,
-1,PC_NOTE_DOWN,1,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_CUT,0,
-0,PATCH_END
+        0,PC_WAVE,4,
+        0,PC_ENV_VOL,240,
+        0,PC_PITCH,59,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,1,
+        1,PC_NOTE_DOWN,1,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_CUT,0,
+        0,PATCH_END
   };
 
 const char patch34[] PROGMEM ={//tom tom high(channel 2)
-0,PC_WAVE,4,
-0,PC_ENV_VOL,240,
-0,PC_PITCH,60,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,1,
-1,PC_NOTE_DOWN,1,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_DOWN,2,
-1,PC_NOTE_CUT,0,
-0,PATCH_END
+        0,PC_WAVE,4,
+        0,PC_ENV_VOL,240,
+        0,PC_PITCH,60,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,1,
+        1,PC_NOTE_DOWN,1,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_DOWN,2,
+        1,PC_NOTE_CUT,0,
+        0,PATCH_END
   };
 /////////////////////////////////////////////////////////
 
 const char fire[] PROGMEM = {
-0, PC_ENV_VOL, 255,
-0, PC_NOISE_PARAMS, 1,
-0, PC_ENV_SPEED, -9,
-0, PATCH_END,
+  0, PC_ENV_VOL, 255,
+  0, PC_NOISE_PARAMS, 1,
+  0, PC_ENV_SPEED, -9,
+  0, PATCH_END,
 };
 
 const char explode[] PROGMEM = {
-0,PC_ENV_VOL,0xff,
-0,PC_ENV_SPEED,-2,
-0,PC_NOISE_PARAMS,0x1,
-10,PC_ENV_VOL,0xa0,
-10,PC_ENV_VOL,0x80,
-10,PC_ENV_VOL,0x60,
-0,PATCH_END
+        0,PC_ENV_VOL,0xff,
+        0,PC_ENV_SPEED,-2,
+        0,PC_NOISE_PARAMS,0x1,
+        10,PC_ENV_VOL,0xa0,
+        10,PC_ENV_VOL,0x80,
+        10,PC_ENV_VOL,0x60,
+        0,PATCH_END
 };
 
 
@@ -871,7 +871,7 @@ const char boing[] PROGMEM ={
 };
 
 #define IKD_MASTER_VOL 232
-#define SFX_FIRE35+0
+#define SFX_FIRE        35+0
 #define SFX_EXPLODE     35+1
 #define SFX_ENGINE      35+2
 #define SFX_BOING       35+3
