@@ -1,8 +1,8 @@
 /** \file   IKD.c
  *  \brief  A Uzebox remake of the tank game in Atari's Combat.
  *  \author Dan MacDonald
- *          Score drawing code borrowed from Bradley Boccuzzi's
- *          Uzebox port of Pong.
+ *          BIG thanks to D3thAdd3r for his fantastic C64 Commando theme rendition!
+ *          Score drawing code borrowed from Bradley Boccuzzi's Uzebox port of Pong.
  *  \date   2023
  */
 
