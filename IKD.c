@@ -1,8 +1,8 @@
 /** \file   IKD.c
  *  \brief  A Uzebox remake of the tank game in Atari's Combat.
  *  \author Dan MacDonald
- *          Score drawing code borrowed from Bradley Boccuzzi's
- *          Uzebox port of Pong.
+ *          BIG thanks to D3thAdd3r for his fantastic C64 Commando theme rendition!
+ *          Score drawing code borrowed from Bradley Boccuzzi's Uzebox port of Pong.
  *  \date   2023
  */
 
@@ -354,7 +354,7 @@ void processBullets(void) {
     else if (p1_bullet.y <= 8 || p1_bullet.y >= 168) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
+          TriggerNote(2, 38, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -366,7 +366,7 @@ void processBullets(void) {
       if (p1_bullet.rside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
-          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
+          TriggerNote(2, 38, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -379,7 +379,7 @@ void processBullets(void) {
       if (p1_bullet.lside == 1) {
         if (bounce == true) {
           p1_bullet.vX = p1_bullet.vX * -1;
-          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
+          TriggerNote(2, 38, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -392,7 +392,7 @@ void processBullets(void) {
       if (p1_bullet.tside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
+          TriggerNote(2, 38, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -405,7 +405,7 @@ void processBullets(void) {
       if (p1_bullet.bside == 1) {
         if (bounce == true) {
           p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(SFX_ENGINE, 3, p1_bullet.pitch, 127);
+          TriggerNote(2, 38, p1_bullet.pitch, 127);
           p1_bullet.pitch++;
         }
         else {
@@ -465,7 +465,7 @@ void processBullets(void) {
     else if (p2_bullet.y <= 8 || p2_bullet.y >= 168) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
+          TriggerNote(2, 38, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -477,7 +477,7 @@ void processBullets(void) {
       if (p2_bullet.rside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
-          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
+          TriggerNote(2, 38, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -490,7 +490,7 @@ void processBullets(void) {
       if (p2_bullet.lside == 1) {
         if (bounce == true) {
           p2_bullet.vX = p2_bullet.vX * -1;
-          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
+          TriggerNote(2, 38, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -503,7 +503,7 @@ void processBullets(void) {
       if (p2_bullet.tside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
+          TriggerNote(2, 38, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -516,7 +516,7 @@ void processBullets(void) {
       if (p2_bullet.bside == 1) {
         if (bounce == true) {
           p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(SFX_BOING, 3, p2_bullet.pitch, 127);
+          TriggerNote(2, 38, p2_bullet.pitch, 127);
           p2_bullet.pitch++;
         }
         else {
@@ -555,7 +555,7 @@ void processTank1Forward(void) {
   p1_tank.x = p1_tank.left / 8;
   p1_tank.y = p1_tank.top / 8;
   wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
-  TriggerFx(SFX_ENGINE, 127, 0);//TriggerNote(SFX_ENGINE, 2, 20, 127);
+  TriggerNote(2, 2, 20, 127);
 }
 
 void processTank2Forward(void) {
@@ -568,7 +568,7 @@ void processTank2Forward(void) {
   p2_tank.x = p2_tank.left / 8;
   p2_tank.y = p2_tank.top / 8;
   wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
-  TriggerFx(SFX_ENGINE, 127, 0);//TriggerNote(SFX_ENGINE, 2, 20, 127);
+  TriggerNote(1, 2, 20, 127);
 }
 
 void initMaze(void) {
