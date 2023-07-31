@@ -555,7 +555,7 @@ void processTank1Forward(void) {
   p1_tank.x = p1_tank.left / 8;
   p1_tank.y = p1_tank.top / 8;
   wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
-  TriggerFx(SFX_ENGINE, 127, 0);//TriggerNote(SFX_ENGINE, 2, 20, 127);
+  TriggerNote(2, 2, 20, 127);
 }
 
 void processTank2Forward(void) {
@@ -568,7 +568,7 @@ void processTank2Forward(void) {
   p2_tank.x = p2_tank.left / 8;
   p2_tank.y = p2_tank.top / 8;
   wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
-  TriggerFx(SFX_ENGINE, 127, 0);//TriggerNote(SFX_ENGINE, 2, 20, 127);
+  TriggerNote(1, 2, 20, 127);
 }
 
 void initMaze(void) {
