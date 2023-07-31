@@ -630,14 +630,14 @@ void initMaze(void) {
 void drawMainMenu()
 {
   ClearVram();
-  //Print(12,1,PSTR("IKD"));
   Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
+  Print(13,2,PSTR("V1.0"));
+  DrawMap2(8,4,title_map);
   Print(7,18,PSTR("BY DAN MACDONALD"));
   Print(10,22,PSTR("NO MAZE"));
   Print(10,23,PSTR("MAZE #1"));
   Print(10,24,PSTR("MAZE #2"));
   Print(10,25,PSTR("MAZE #3"));
-  DrawMap2(8,4,title_map);
 
   if (bounce == true) {
   Print(10,26,PSTR("BOUNCE ON"));
@@ -655,7 +655,7 @@ void processMainMenu()
   if (tank1Held!=tank1Prev) {
     if (tank1Held & BTN_DOWN) {
       maze++;
-      TriggerNote(SFX_BOING, 3, 75, 127);
+      TriggerNote(1, 38, 75, 127);
       if (maze > 4) {
         maze = 0;
       }
@@ -663,7 +663,7 @@ void processMainMenu()
     }
     if (tank1Held & BTN_UP) {
       maze--;
-      TriggerNote(SFX_BOING, 3, 75, 127);
+      TriggerNote(1, 38, 75, 127);
       if (maze < 0) {
         maze = 4;
       }
@@ -672,14 +672,14 @@ void processMainMenu()
     if (tank1Held & BTN_LEFT) {
       if (maze == 4) {
         bounce = !bounce;
-        TriggerNote(SFX_BOING, 3, 75, 127);
+        TriggerNote(1, 38, 75, 127);
       }
       drawMainMenu();
     }
     if (tank1Held & BTN_RIGHT) {
       if (maze == 4) {
         bounce = !bounce;
-        TriggerNote(SFX_BOING, 3, 75, 127);
+        TriggerNote(1, 38, 75, 127);
       }
       drawMainMenu();
     }
