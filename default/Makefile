@@ -64,7 +64,7 @@ LINKONLYOBJECTS =
 INCLUDES = -I"$(KERNEL_DIR)"
 
 ## Resources
-RESOURCES = ../data/tileset.inc ../data/commando-uncompressed.inc ../data/music-compressed.inc
+RESOURCES = ../data/commando-uncompressed.inc ../data/music-compressed.inc
 
 ## Build
 all: $(RESOURCES) $(TARGET) $(GAME).hex $(GAME).eep $(GAME).lss $(GAME).uze size
