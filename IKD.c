@@ -3,7 +3,7 @@
  *  \author Dan MacDonald
  *          BIG thanks to D3thAdd3r for his fantastic C64 Commando theme rendition!
  *          Score drawing code borrowed from Bradley Boccuzzi's Uzebox port of Pong.
- *  \date   2023
+ *  \date   2024
  */
 
 
@@ -16,7 +16,6 @@
 
 #include "data/patches.inc"
 #include "data/tileset.inc"
-//#include "data/maps.inc"
 #include "data/music-compressed.inc"
 
 int tank1Prev = 0;     // Previous button
@@ -168,24 +167,23 @@ int main() {
       // Menu code here
       initIKD();
       if(!IsSongPlaying()){
-                StartSong(commando);/*TriggerFx(SFX_FIRE,255,1);WaitVsync(60);TriggerFx(SFX_EXPLODE,255,1);WaitVsync(60);TriggerFx(SFX_ENGINE,255,1);WaitVsync(60);TriggerFx(SFX_BOING,255,1);WaitVsync(60);*/}
-      drawMainMenu();
+        StartSong(commando);/*TriggerFx(SFX_FIRE,255,1);WaitVsync(60);TriggerFx(SFX_EXPLODE,255,1);WaitVsync(60);TriggerFx(SFX_ENGINE,255,1);WaitVsync(60);TriggerFx(SFX_BOING,255,1);WaitVsync(60);*/}
+        drawMainMenu();
     }
     while(game_state == MAIN_MENU)
-                {
-                        WaitVsync(1);
-                        processMainMenu();
-            drawMainMenu();
-                }
-                StopSong();
-                FadeOut(1,1);
-                FadeIn(3,0);
-                while(GetMasterVolume() > 16){
-                        SetMasterVolume(GetMasterVolume()-16);
-                        WaitVsync(1);
-                }
-                StopSong();
-                SetMasterVolume(IKD_MASTER_VOL);
+    {
+      WaitVsync(1);
+      processMainMenu();
+    }
+    StopSong();
+    FadeOut(1,1);
+    FadeIn(3,0);
+    while(GetMasterVolume() > 16){
+      SetMasterVolume(GetMasterVolume()-16);
+      WaitVsync(1);
+    }
+    StopSong();
+    SetMasterVolume(IKD_MASTER_VOL);
   }
 }
 
@@ -631,7 +629,7 @@ void drawMainMenu()
 {
   ClearVram();
   Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
-  Print(13,2,PSTR("V1.0"));
+  Print(13,2,PSTR("V1.1"));
   DrawMap2(8,4,title_map);
   Print(7,18,PSTR("BY DAN MACDONALD"));
   Print(10,22,PSTR("NO MAZE"));
