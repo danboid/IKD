@@ -22,7 +22,7 @@ typedef enum {MAIN_MENU, GAME} state;
 state game_state = MAIN_MENU;
 bool isSinglePlayer = false;
 bool bounce = true;
-int shakeTimer = 0;
+//int shakeTimer = 0;
 int seed, maze, nextX, nextY = 0;
 
 int aiStuckTimer = 0;
@@ -109,6 +109,7 @@ int main() {
         if(game_state == MAIN_MENU) {
             initIKD();
             if(!IsSongPlaying()) StartSong(commando);
+            drawMainMenu();
             while(game_state == MAIN_MENU) {
                 WaitVsync(1);
                 processMainMenu();
@@ -152,7 +153,7 @@ void initIKD(void) {
 }
 
 void processAI(void) {
-    // 1. STUCK DETECTION (Tracks if we have actually changed position)
+    // 1. POSITION TRACKING (For the Stuck Timer)
     if (abs(p2_tank.left - aiLastX) < 0.1 && abs(p2_tank.top - aiLastY) < 0.1) {
         aiStuckTimer++;
     } else {
@@ -161,52 +162,56 @@ void processAI(void) {
     aiLastX = p2_tank.left;
     aiLastY = p2_tank.top;
 
-    // 2. WALL COLLISION CHECK
+    // 2. COLLISION CHECK
     p2_tank.x = p2_tank.left / 8;
     p2_tank.y = p2_tank.top / 8;
     wallTankCollision(1, p2_tank.x, p2_tank.y, p2_tank.angle);
 
     // 3. DECISION & MOVEMENT LOGIC
     if (p2_tank.advance && aiDecisionTimer == 0) {
-        // --- NORMAL PATHING ---
-        // Target player angle
+        // --- NORMAL PURSUIT MODE ---
         int dx = p1_tank.x - p2_tank.x;
         int dy = p1_tank.y - p2_tank.y;
         int lutX = (dx < -4 ? -4 : (dx > 4 ? 4 : dx)) + 4;
         int lutY = (dy < -4 ? -4 : (dy > 4 ? 4 : dy)) + 4;
         int targetAngle = pgm_read_byte(&(angle_lut[lutY][lutX]));
 
-        // Slow adjustment toward player (one step per frame)
-        if (p2_tank.angle != targetAngle && (seed % 4 == 0)) { // Only turn every 4th frame for smoothness
+        // Smooth adjustment: only turn if we aren't blocked
+        if (p2_tank.angle != targetAngle && (seed % 4 == 0)) {
             if ((targetAngle - p2_tank.angle + 16) % 16 < 8) p2_tank.angle = (p2_tank.angle + 1) % 16;
             else p2_tank.angle = (p2_tank.angle + 15) % 16;
             processTrig();
         }
 
-        // Move forward
+        // Try to move forward
         p2_tank.left += p2_tank.vX / 2;
         p2_tank.top += p2_tank.vY / 2;
 
     } else {
-        // --- COLLISION / STUCK RECOVERY ---
+        // --- WALL RECOVERY MODE ---
         if (aiDecisionTimer == 0) {
-            // Just hit a wall! Set timer for 1 second (60 frames)
+            // We just hit a wall!
+            // 1. Back up slightly more to get clear of the collision box
+            p2_tank.left -= p2_tank.vX;
+            p2_tank.top -= p2_tank.vY;
+            // 2. Start 1-second wait (60 frames)
             aiDecisionTimer = 60;
         }
 
         aiDecisionTimer--;
 
-        // When timer is half-way, adjust angle by exactly one step
+        // Halfway through the wait (after 0.5s), turn exactly one step
         if (aiDecisionTimer == 30) {
-            // Turn away from the player to try a new path, or just rotate clockwise
-            p2_tank.angle = (p2_tank.angle + 1) % 16;
+            // Decide to turn left or right based on seed
+            if (seed % 2 == 0) p2_tank.angle = (p2_tank.angle + 1) % 16;
+            else p2_tank.angle = (p2_tank.angle + 15) % 16;
             processTrig();
         }
 
-        // While decisionTimer > 0, the tank remains stationary
+        // Tank remains stationary until aiDecisionTimer hits 0
     }
 
-    // 4. SHOOTING
+    // 4. SHOOTING (Only when not stunned/waiting)
     if (!p2_bullet.active && hasLineOfSight() && aiDecisionTimer == 0) {
         if (rand() % 20 == 1) {
             p2_bullet.active = true;
@@ -247,7 +252,7 @@ void processScore(void) {
     PrintHexInt(23, 24, Tens[1]);
 
     if (Tens[0] > 0 || Tens[1] > 0) {
-        shakeTimer = 60;
+        //shakeTimer = 60;
         for(int i=0; i<4; i++){
             TriggerNote(2, 38, 50-(i*12), 127);
             WaitVsync(12);
@@ -379,8 +384,8 @@ void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
     if (blocked) {
         t->advance = false;
         // 3. PUSH-BACK (Crucial for AI not to get stuck "inside" a wall)
-        t->left -= t->vX;
-        t->top  -= t->vY;
+        t->left -= (t->vX * 1.2f);
+        t->top  -= (t->vY * 1.2f);
     } else {
         t->advance = true;
     }
