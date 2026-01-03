@@ -150,6 +150,13 @@ void initIKD(void) {
     SetSpritesTileTable(tileset);
     SetTileTable(tileset);
     ClearVram();
+
+    // HIDE ALL SPRITES
+    // Moving them to a Y position beyond the screen height (e.g., 240)
+    // effectively hides them from the renderer.
+    for (uint8_t i = 0; i < 8; i++) {
+        MoveSprite(i, 0, 240, 1, 1);
+    }
 }
 
 void processAI(void) {
@@ -242,7 +249,7 @@ void processScore(void) {
             TriggerNote(2, 38, 50-(i*12), 127);
             WaitVsync(12);
         }
-        ClearVram();
+        initIKD();
         if (Tens[0] > 0) Print(9, 12, PSTR("PLAYER 1 WINS"));
         else Print(9, 12, PSTR("PLAYER 2 WINS"));
         WaitVsync(180);
