@@ -21,12 +21,17 @@ To build IKD under Debian or Ubuntu Linux you must first build the Uzebox repo, 
 ```
 sudo apt install build-essential git avr-libc gcc-avr libsdl2-dev
 git clone https://github.com/Uzebox/uzebox.git
+cd uzebox
+make
 cd uzebox/demos
 git clone https://github.com/danboid/IKD
 cd ../tools/packrom/
 make
 cd ../midiconv/
 make
+
+You need to patch the Uzebox sound engine to get the drum channel working - see https://uzebox.org/forums/viewtopic.php?p=36744#p36744
+
 cd ../../demos/IKD/default/
 make
 ```
