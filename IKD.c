@@ -486,7 +486,7 @@ void processBullets(void) {
                 }
                 TriggerNote(2, 38, p1_bullet.pitch, 127);
                 p1_bullet.pitch++;
-                p1_bullet.age += 10;
+                p1_bullet.age += 33;
                 if (p1_bullet.age > 100) p1_bullet.active = false;
             }
         }
@@ -527,7 +527,7 @@ void processBullets(void) {
                 }
                 TriggerNote(2, 38, p2_bullet.pitch, 127);
                 p2_bullet.pitch++;
-                p2_bullet.age += 10;
+                p2_bullet.age += 33;
                 if (p2_bullet.age > 100) p2_bullet.active = false;
             }
         }
