@@ -261,8 +261,8 @@ void processScore(void) {
             WaitVsync(12);
         }
         ClearVram();
-        if (Tens[0] > 0) Print(9, 12, PSTR("PLAYER 1 VICTORIOUS"));
-        else Print(9, 12, PSTR("COMPUTER VICTORIOUS"));
+        if (Tens[0] > 0) Print(9, 12, PSTR("PLAYER WINS"));
+        else Print(9, 12, PSTR("UZEBOX WINS"));
         WaitVsync(180);
         game_state = MAIN_MENU;
     }
