@@ -6,7 +6,6 @@
  *  \date   2024
  */
 
-
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <math.h>
@@ -18,677 +17,288 @@
 #include "data/tileset.inc"
 #include "data/music-compressed.inc"
 
-int tank1Prev = 0;     // Previous button
-int tank1Held = 0;     // buttons that are held right now
-int tank1Pressed = 0;  // buttons that were pressed this frame
-int tank1Released = 0; // buttons that were released this frame
-
-int tank2Prev = 0;
-int tank2Held = 0;
-int tank2Pressed = 0;
-int tank2Released = 0;
-
+// --- GLOBALS & STATE ---
+typedef enum {MAIN_MENU, GAME} state;
+state game_state = MAIN_MENU;
+bool isSinglePlayer = false;
+bool bounce = true;
+int shakeTimer = 0;
 int seed, maze, nextX, nextY = 0;
 
-float angles[] = {0,   23,  45,  68,  90,  113, 135, 158,
-                  180, 203, 225, 248, 270, 293, 315, 338};
+int aiStuckTimer = 0;
+float aiLastX = 0;
+float aiLastY = 0;
+bool aiRapidTurn = false;
+int aiDecisionTimer = 0; // Tracks frames to wait after a collision
 
-#define WALL_TILE       0x64
-
-const char *tank1_sprites[16] = {tank1_000, tank1_023, tank1_045, tank1_068,
-                                 tank1_090, tank1_113, tank1_135, tank1_158,
-                                 tank1_180, tank1_203, tank1_225, tank1_248,
-                                 tank1_270, tank1_293, tank1_315, tank1_338};
-
-const char *tank2_sprites[16] = {tank2_000, tank2_023, tank2_045, tank2_068,
-                                 tank2_090, tank2_113, tank2_135, tank2_158,
-                                 tank2_180, tank2_203, tank2_225, tank2_248,
-                                 tank2_270, tank2_293, tank2_315, tank2_338};
-
-const char *tank1_current_sprite, *tank2_current_sprite;
+int tank1Prev, tank1Held, tank1Pressed;
+int tank2Prev, tank2Held, tank2Pressed;
 
 unsigned char Score[2] = {0, 0};
-
 unsigned char Tens[2] = {0, 0};
 
-const unsigned char menu_opts[5] PROGMEM = {22, 23, 24, 25, 26};
+#define WALL_TILE 0x64
+// NOTE: IKD_MASTER_VOL is already defined in patches.inc
 
+// --- SPRITE & MAP DATA (Now Global so all functions see them) ---
+const char *tank1_sprites[16] = {tank1_000, tank1_023, tank1_045, tank1_068, tank1_090, tank1_113, tank1_135, tank1_158, tank1_180, tank1_203, tank1_225, tank1_248, tank1_270, tank1_293, tank1_315, tank1_338};
+const char *tank2_sprites[16] = {tank2_000, tank2_023, tank2_045, tank2_068, tank2_090, tank2_113, tank2_135, tank2_158, tank2_180, tank2_203, tank2_225, tank2_248, tank2_270, tank2_293, tank2_315, tank2_338};
+const char *numbers[10] = {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9};
+const char *numbers2[10] = {sc0, sc1, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9};
 const char *mazes[4] = {maze0, maze1, maze2, maze3};
 
-const char *numbers[10] = {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9};
+// Current sprite trackers
+const char *tank1_current_sprite;
+const char *tank2_current_sprite;
 
-const char *numbers2[10] = {sc0, sc1, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9};
+// --- LOOKUP TABLES ---
+float angles[] = {0, 23, 45, 68, 90, 113, 135, 158, 180, 203, 225, 248, 270, 293, 315, 338};
 
+const int8_t angle_lut[9][9] PROGMEM = {
+    {14, 14, 13, 13, 12, 11, 11, 10, 10},
+    {14, 14, 14, 13, 12, 11, 10, 10, 10},
+    {15, 15, 14, 13, 12, 11, 10,  9,  9},
+    {15, 15, 15, 14, 12, 10,  9,  9,  9},
+    { 0,  0,  0,  0,  0,  4,  4,  4,  4},
+    { 1,  1,  1,  2,  4,  6,  7,  7,  7},
+    { 1,  1,  2,  3,  4,  5,  6,  7,  7},
+    { 2,  2,  2,  3,  4,  5,  6,  6,  6},
+    { 2,  2,  3,  3,  4,  5,  5,  6,  6}
+};
+
+const unsigned char menu_y_pos[] PROGMEM = {20, 20, 21, 21, 22, 22, 23, 23, 25};
+
+// ... (Rest of your Structs and Prototypes here)
+
+// --- STRUCTURES ---
 struct bulletStruct {
-  float x;
-  float y;
-  float vX;
-  float vY;
-  bool active;
-  int age;
-  int gridX;
-  int gridY;
-  int top;     // Top edge of current bullet's current grid
-  int bottom;
-  int left;
-  int right;
-  int tside;
-  int rside;
-  int bside;
-  int lside;
-  int pitch;
+    float x, y, vX, vY;
+    bool active;
+    int age, gridX, gridY, pitch;
+    int top, bottom, left, right;
+    int tside, rside, bside, lside;
+};
+
+struct tankStruct {
+    float top, bottom, left, right, vX, vY;
+    int angle, x, y;
+    bool advance;
 };
 
 struct bulletStruct p1_bullet, p2_bullet;
-
-bool bounce = true;
-
-struct tankStruct {
-  float top;     // Top corner of the sprite in pixels
-  float bottom;
-  float left;
-  float right;
-  float vX;
-  float vY;
-  int angle;     // Which direction is the tank facing? 0 = up/north, 4 = right/east
-  int x;         // Current 8x8 pixel tile horizontal grid position, starting from the left
-  int y;         // Vertical tile position, starting from the top of the screen
-  bool advance;  // Can the tank move forward in its current location and angle?
-};
-
 struct tankStruct p1_tank, p2_tank;
 
-void hyperTanks(void);
+// --- PROTOTYPES ---
 void initIKD(void);
 void initMaze(void);
 void processTrig(void);
 void processBullets(void);
 void processTank1(void);
-void processTank1Forward(void);
 void processTank2(void);
-void processTank2Forward(void);
+void processAI(void);
 void processScore(void);
-void cuzeboxCOut(char str[]);
-void cuzeboxHOut(int num);
-void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle);
 void drawMainMenu(void);
 void processMainMenu(void);
+bool hasLineOfSight(void);
 int wallCheck(int gridX, int gridY, int side);
+void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle);
 
-// cuzeboxCOut() is used to print debug strings to the cuzebox console.
-void cuzeboxCOut(char str[]) {
-  for (int i = 0; str[i] != '\0'; i++) {
-        _SFR_IO8(0X1a)=str[i];
-  }
-  _SFR_IO8(0X1a)='\n'; // Add newline after last character
-}
-
-// cuzeboxHOut() is used to print a hex value to the cuzebox console.
-// eg cuzeboxHOut(GetTile(2,8));
-void cuzeboxHOut(int num) {
-  _SFR_IO8(25)=num;
-  _SFR_IO8(0X1a)='\n'; // Add newline
-}
-
-typedef enum {MAIN_MENU, GAME} state;
-state game_state = MAIN_MENU; ///< Tracks current state of the game.
-
+// --- MAIN LOOP ---
 int main() {
-  while(1)
-  {
-    if(game_state == GAME)
-    {
-      // Basic prep work
-      initIKD();
-
-      // Reset scores
-      Score[0] = 0;
-      Score[1] = 0;
-
-      // Load maze
-      initMaze();
-      // Main loop
-      while (1) {
-        // wait until the next frame
-        WaitVsync(1);
-        seed++;
-        processTank1();
-        processTank2();
-        processBullets();
-        processScore();
-        if(!IsRunningInEmulator() && IsPowerSwitchPressed())
-        {
-          hyperTanks();
+    while(1) {
+        if(game_state == MAIN_MENU) {
+            initIKD();
+            if(!IsSongPlaying()) StartSong(commando);
+            while(game_state == MAIN_MENU) {
+                WaitVsync(1);
+                processMainMenu();
+            }
+            StopSong();
         }
-      }
+
+        if(game_state == GAME) {
+            initIKD();
+            Score[0] = 0; Score[1] = 0;
+            Tens[0] = 0;  Tens[1] = 0;
+            initMaze(); // Loads the map and calls hyperTanks()
+
+            while (game_state == GAME) {
+                WaitVsync(1);
+                seed++;
+
+                processTank1();
+
+                if (isSinglePlayer) {
+                    processAI();
+                } else {
+                    processTank2();
+                }
+
+                processBullets();
+                processScore();
+            }
+        }
     }
-    if(game_state == MAIN_MENU)
-    {
-      // Menu code here
-      initIKD();
-      if(!IsSongPlaying()){
-        StartSong(commando);/*TriggerFx(SFX_FIRE,255,1);WaitVsync(60);TriggerFx(SFX_EXPLODE,255,1);WaitVsync(60);TriggerFx(SFX_ENGINE,255,1);WaitVsync(60);TriggerFx(SFX_BOING,255,1);WaitVsync(60);*/}
-        drawMainMenu();
-    }
-    while(game_state == MAIN_MENU)
-    {
-      WaitVsync(1);
-      processMainMenu();
-    }
-    StopSong();
-    FadeOut(1,1);
-    FadeIn(3,0);
-    while(GetMasterVolume() > 16){
-      SetMasterVolume(GetMasterVolume()-16);
-      WaitVsync(1);
-    }
-    StopSong();
-    SetMasterVolume(IKD_MASTER_VOL);
-  }
 }
+
+// --- CORE FUNCTIONS ---
 
 void initIKD(void) {
-  InitMusicPlayer(patches);
-  SetMasterVolume(IKD_MASTER_VOL);
-  SetSpritesTileTable(tileset);
-  SetTileTable(tileset); // Tile set to use for ClearVram()
-  SetFontTilesIndex(0);
-  ClearVram();           // fill entire screen with first tile in the tileset
+    InitMusicPlayer(patches);
+    SetMasterVolume(IKD_MASTER_VOL);
+    SetSpritesTileTable(tileset);
+    SetTileTable(tileset);
+    ClearVram();
 }
 
-void processTank1(void) {
-  MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1); // position tank 1 sprite
-  tank1Held = ReadJoypad(0); // read in our player one joypad input
-  tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
-
-  if (tank1Pressed & BTN_RIGHT) {
-    p1_tank.angle++; // move forward to next animation frame
-    if (p1_tank.angle == 16) {
-      p1_tank.angle = 0;
-    }
-    tank1_current_sprite = tank1_sprites[p1_tank.angle];
-    processTrig();
-    MapSprite2(0, tank1_current_sprite, 0);
-    wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
-  }
-  if (tank1Pressed & BTN_LEFT) {
-    if (p1_tank.angle == 0) {
-      p1_tank.angle = 15;
+void processAI(void) {
+    // 1. STUCK DETECTION (Tracks if we have actually changed position)
+    if (abs(p2_tank.left - aiLastX) < 0.1 && abs(p2_tank.top - aiLastY) < 0.1) {
+        aiStuckTimer++;
     } else {
-      p1_tank.angle--; // move back to previous animation frame
+        aiStuckTimer = 0;
     }
-    tank1_current_sprite = tank1_sprites[p1_tank.angle];
-    processTrig();
-    MapSprite2(0, tank1_current_sprite, 0);
-    wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
-  }
-  if (tank1Pressed & BTN_A) {
-    srand((unsigned)seed);
-    if (p1_bullet.active == false) {
-      p1_bullet.age = 0;
-      p1_bullet.x = p1_tank.left;
-      p1_bullet.y = p1_tank.top;
-      p1_bullet.vX = p1_tank.vX;
-      p1_bullet.vY = p1_tank.vY;
-      p1_bullet.active = true;
-      p1_bullet.pitch = 75;
-      MapSprite2(1, bullet, 0); // map bullet
-      MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
-      TriggerFx(SFX_FIRE, 0xFF, true);
-    }
-  }
-  if (tank1Held & BTN_UP) {
-    if (p1_tank.advance == true) {
-      processTank1Forward();
-    }
-  }
-  if (tank1Held & BTN_B) {
-    if (p1_tank.advance == true) {
-      processTank1Forward();
-    }
-  }
-  tank1Prev = tank1Held;
-}
+    aiLastX = p2_tank.left;
+    aiLastY = p2_tank.top;
 
-void processTank2(void) {
-  MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1); // position tank 2 sprite
-  tank2Held = ReadJoypad(1);                 // read player 2 input
-  tank2Pressed = tank2Held & (tank2Held ^ tank2Prev);
+    // 2. WALL COLLISION CHECK
+    p2_tank.x = p2_tank.left / 8;
+    p2_tank.y = p2_tank.top / 8;
+    wallTankCollision(1, p2_tank.x, p2_tank.y, p2_tank.angle);
 
-  if (tank2Pressed & BTN_RIGHT) {
-    p2_tank.angle++; // move forward to next animation frame
-    if (p2_tank.angle == 16) {
-      p2_tank.angle = 0;
-    }
-    tank2_current_sprite = tank2_sprites[p2_tank.angle];
-    processTrig();
-    MapSprite2(2, tank2_current_sprite, 0);
-    wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
-  }
-  if (tank2Pressed & BTN_LEFT) {
-    if (p2_tank.angle == 0) {
-      p2_tank.angle = 15;
+    // 3. DECISION & MOVEMENT LOGIC
+    if (p2_tank.advance && aiDecisionTimer == 0) {
+        // --- NORMAL PATHING ---
+        // Target player angle
+        int dx = p1_tank.x - p2_tank.x;
+        int dy = p1_tank.y - p2_tank.y;
+        int lutX = (dx < -4 ? -4 : (dx > 4 ? 4 : dx)) + 4;
+        int lutY = (dy < -4 ? -4 : (dy > 4 ? 4 : dy)) + 4;
+        int targetAngle = pgm_read_byte(&(angle_lut[lutY][lutX]));
+
+        // Slow adjustment toward player (one step per frame)
+        if (p2_tank.angle != targetAngle && (seed % 4 == 0)) { // Only turn every 4th frame for smoothness
+            if ((targetAngle - p2_tank.angle + 16) % 16 < 8) p2_tank.angle = (p2_tank.angle + 1) % 16;
+            else p2_tank.angle = (p2_tank.angle + 15) % 16;
+            processTrig();
+        }
+
+        // Move forward
+        p2_tank.left += p2_tank.vX / 2;
+        p2_tank.top += p2_tank.vY / 2;
+
     } else {
-      p2_tank.angle--; // move back to previous animation frame
+        // --- COLLISION / STUCK RECOVERY ---
+        if (aiDecisionTimer == 0) {
+            // Just hit a wall! Set timer for 1 second (60 frames)
+            aiDecisionTimer = 60;
+        }
+
+        aiDecisionTimer--;
+
+        // When timer is half-way, adjust angle by exactly one step
+        if (aiDecisionTimer == 30) {
+            // Turn away from the player to try a new path, or just rotate clockwise
+            p2_tank.angle = (p2_tank.angle + 1) % 16;
+            processTrig();
+        }
+
+        // While decisionTimer > 0, the tank remains stationary
     }
-    tank2_current_sprite = tank2_sprites[p2_tank.angle];
-    processTrig();
-    MapSprite2(2, tank2_current_sprite, 0);
-    wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
-  }
-  if (tank2Pressed & BTN_A) {
-    srand((unsigned)seed);
-    if (p2_bullet.active == false) {
-      p2_bullet.age = 0;
-      p2_bullet.x = p2_tank.left;
-      p2_bullet.y = p2_tank.top;
-      p2_bullet.vX = p2_tank.vX;
-      p2_bullet.vY = p2_tank.vY;
-      p2_bullet.active = true;
-      p2_bullet.pitch = 75;
-      MapSprite2(3, bullet, 0); // map bullet
-      MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
-      TriggerFx(SFX_FIRE, 0xFF, true);
+
+    // 4. SHOOTING
+    if (!p2_bullet.active && hasLineOfSight() && aiDecisionTimer == 0) {
+        if (rand() % 20 == 1) {
+            p2_bullet.active = true;
+            p2_bullet.pitch = 60;
+            p2_bullet.x = p2_tank.left;
+            p2_bullet.y = p2_tank.top;
+            p2_bullet.vX = p2_tank.vX;
+            p2_bullet.vY = p2_tank.vY;
+            MapSprite2(3, bullet, 0);
+            TriggerFx(SFX_FIRE, 0xFF, true);
+        }
     }
-  }
-  if (tank2Held & BTN_UP) {
-    if (p2_tank.advance == true) {
-      processTank2Forward();
-    }
-  }
-  if (tank2Held & BTN_B) {
-    if (p2_tank.advance == true) {
-      processTank2Forward();
-    }
-  }
-  tank2Prev = tank2Held;
+
+    // 5. UPDATE SPRITE
+    MapSprite2(2, tank2_sprites[p2_tank.angle], 0);
+    MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
 }
 
-void processBullets(void) {
-  if (p1_bullet.active == true && p1_bullet.age < 60) {
-    p1_bullet.age++;
-    p1_bullet.x += p1_bullet.vX * 3;
-    p1_bullet.y += p1_bullet.vY * 3;
-    p1_bullet.gridX = p1_bullet.x / 8;
-    p1_bullet.gridY = p1_bullet.y / 8;
-    p1_bullet.top = p1_bullet.gridY * 8;
-    p1_bullet.bottom = p1_bullet.top + 8;
-    p1_bullet.left = p1_bullet.gridX * 8;
-    p1_bullet.right = p1_bullet.left + 8;
-    p1_bullet.tside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,0);
-    p1_bullet.rside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,1);
-    p1_bullet.bside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,2);
-    p1_bullet.lside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,3);
-    MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
-    if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= p2_tank.right &&
-        p1_bullet.y >= p2_tank.top && p1_bullet.y <= p2_tank.bottom) {
-      p1_bullet.active = false;
-      MapSprite2(1, blank, 0);
-      TriggerFx(SFX_EXPLODE, 0xFF, true);
-      Score[0]++;
-      if (Score[0] > 9) {
-          Tens[0]++;
-          Score[0] = 0;
-      }
-
-      p2_tank.x = rand() % 27;
-      p2_tank.y = rand() % 21;
-      // This loop stops the tank respawning on a wall
-      while (GetTile(p2_tank.x, p2_tank.y) == WALL_TILE) {
-        p2_tank.x = rand() % 27;
-        p2_tank.y = rand() % 21;
-      }
-      p2_tank.left = p2_tank.x * 8;
-      p2_tank.top = p2_tank.y * 8;
-      p2_tank.right = p2_tank.left + 8;
-      p2_tank.bottom = p2_tank.top + 8;
-      p2_tank.angle = rand() % 15;
-      tank2_current_sprite = tank2_sprites[p2_tank.angle];
-      processTrig();
-      MapSprite2(2, tank2_current_sprite, 0);
-      p2_bullet.active = false;
-      p2_bullet.age = 0;
+bool hasLineOfSight(void) {
+    int x0 = p2_tank.x; int y0 = p2_tank.y;
+    int x1 = p1_tank.x; int y1 = p1_tank.y;
+    int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+    int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
+    int err = dx+dy, e2;
+    while(1){
+        if(GetTile(x0, y0) == WALL_TILE) return false;
+        if(x0==x1 && y0==y1) return true;
+        e2 = 2*err;
+        if(e2 >= dy){ err += dy; x0 += sx; }
+        if(e2 <= dx){ err += dx; y0 += sy; }
     }
-    else if (p1_bullet.y <= 8 || p1_bullet.y >= 168) {
-        if (bounce == true) {
-          p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(2, 38, p1_bullet.pitch, 127);
-          p1_bullet.pitch++;
-        }
-        else {
-          p1_bullet.active = false;
-          MapSprite2(1, blank, 0);
-        }
-    }
-    else if (p1_bullet.x >= (p1_bullet.right - 2)) {
-      if (p1_bullet.rside == 1) {
-        if (bounce == true) {
-          p1_bullet.vX = p1_bullet.vX * -1;
-          TriggerNote(2, 38, p1_bullet.pitch, 127);
-          p1_bullet.pitch++;
-        }
-        else {
-          p1_bullet.active = false;
-          MapSprite2(1, blank, 0);
-        }
-      }
-    }
-    else if (p1_bullet.x <= (p1_bullet.left + 2)) {
-      if (p1_bullet.lside == 1) {
-        if (bounce == true) {
-          p1_bullet.vX = p1_bullet.vX * -1;
-          TriggerNote(2, 38, p1_bullet.pitch, 127);
-          p1_bullet.pitch++;
-        }
-        else {
-          p1_bullet.active = false;
-          MapSprite2(1, blank, 0);
-        }
-      }
-    }
-    else if (p1_bullet.y <= (p1_bullet.top + 2)) {
-      if (p1_bullet.tside == 1) {
-        if (bounce == true) {
-          p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(2, 38, p1_bullet.pitch, 127);
-          p1_bullet.pitch++;
-        }
-        else {
-          p1_bullet.active = false;
-          MapSprite2(1, blank, 0);
-        }
-      }
-    }
-    else if (p1_bullet.y >= (p1_bullet.bottom - 2)) {
-      if (p1_bullet.bside == 1) {
-        if (bounce == true) {
-          p1_bullet.vY = p1_bullet.vY * -1;
-          TriggerNote(2, 38, p1_bullet.pitch, 127);
-          p1_bullet.pitch++;
-        }
-        else {
-          p1_bullet.active = false;
-          MapSprite2(1, blank, 0);
-        }
-      }
-    }
-  } else {
-    p1_bullet.active = false;
-    MapSprite2(1, blank, 0);
-  }
-
-  if (p2_bullet.active == true && p2_bullet.age < 60) {
-    p2_bullet.age++;
-    p2_bullet.x += p2_bullet.vX * 3;
-    p2_bullet.y += p2_bullet.vY * 3;
-    p2_bullet.gridX = p2_bullet.x / 8;
-    p2_bullet.gridY = p2_bullet.y / 8;
-    p2_bullet.top = p2_bullet.gridY * 8;
-    p2_bullet.bottom = p2_bullet.top + 8;
-    p2_bullet.left = p2_bullet.gridX * 8;
-    p2_bullet.right = p2_bullet.left + 8;
-    p2_bullet.tside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,0);
-    p2_bullet.rside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,1);
-    p2_bullet.bside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,2);
-    p2_bullet.lside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,3);
-    MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
-    if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= p1_tank.right &&
-        p2_bullet.y >= p1_tank.top && p2_bullet.y <= p1_tank.bottom) {
-      p2_bullet.active = false;
-      MapSprite2(3, blank, 0);
-      TriggerFx(SFX_EXPLODE, 0xFF, true);
-      Score[1]++;
-      if (Score[1] > 9) {
-          Tens[1]++;
-          Score[1] = 0;
-      }
-
-      p1_tank.x = rand() % 27;
-      p1_tank.y = rand() % 21;
-      while (GetTile(p1_tank.x, p1_tank.y) == WALL_TILE) {
-        p1_tank.x = rand() % 27;
-        p1_tank.y = rand() % 21;
-      }
-      p1_tank.left = p1_tank.x * 8;
-      p1_tank.top = p1_tank.y * 8;
-      p1_tank.right = p1_tank.left + 8;
-      p1_tank.bottom = p1_tank.top + 8;
-      p1_tank.angle = rand() % 15;
-      tank1_current_sprite = tank1_sprites[p1_tank.angle];
-      processTrig();
-      MapSprite2(0, tank1_current_sprite, 0);
-      p1_bullet.active = false;
-      p1_bullet.age = 0;
-    }
-    else if (p2_bullet.y <= 8 || p2_bullet.y >= 168) {
-        if (bounce == true) {
-          p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(2, 38, p2_bullet.pitch, 127);
-          p2_bullet.pitch++;
-        }
-        else {
-          p2_bullet.active = false;
-          MapSprite2(3, blank, 0);
-        }
-    }
-    else if (p2_bullet.x >= (p2_bullet.right - 2)) {
-      if (p2_bullet.rside == 1) {
-        if (bounce == true) {
-          p2_bullet.vX = p2_bullet.vX * -1;
-          TriggerNote(2, 38, p2_bullet.pitch, 127);
-          p2_bullet.pitch++;
-        }
-        else {
-          p2_bullet.active = false;
-          MapSprite2(3, blank, 0);
-        }
-      }
-    }
-    else if (p2_bullet.x <= (p2_bullet.left + 2)) {
-      if (p2_bullet.lside == 1) {
-        if (bounce == true) {
-          p2_bullet.vX = p2_bullet.vX * -1;
-          TriggerNote(2, 38, p2_bullet.pitch, 127);
-          p2_bullet.pitch++;
-        }
-        else {
-          p2_bullet.active = false;
-          MapSprite2(3, blank, 0);
-        }
-      }
-    }
-    else if (p2_bullet.y <= (p2_bullet.top + 2)) {
-      if (p2_bullet.tside == 1) {
-        if (bounce == true) {
-          p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(2, 38, p2_bullet.pitch, 127);
-          p2_bullet.pitch++;
-        }
-        else {
-          p2_bullet.active = false;
-          MapSprite2(3, blank, 0);
-        }
-      }
-    }
-    else if (p2_bullet.y >= (p2_bullet.bottom - 2)) {
-      if (p2_bullet.bside == 1) {
-        if (bounce == true) {
-          p2_bullet.vY = p2_bullet.vY * -1;
-          TriggerNote(2, 38, p2_bullet.pitch, 127);
-          p2_bullet.pitch++;
-        }
-        else {
-          p2_bullet.active = false;
-          MapSprite2(3, blank, 0);
-        }
-      }
-    }
-  } else {
-    p2_bullet.active = false;
-    MapSprite2(3, blank, 0);
-  }
-}
-
-void processTrig(void) {
-  p1_tank.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
-  p1_tank.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
-  p2_tank.vX = sin(2 * M_PI * (angles[p2_tank.angle] / 360));
-  p2_tank.vY = -cos(2 * M_PI * (angles[p2_tank.angle] / 360));
 }
 
 void processScore(void) {
-  DrawMap2(6, 22, (numbers[Score[0]]));
-  DrawMap2(18, 22, (numbers2[Score[1]]));
-  PrintHexInt(1,24,(Tens[0]));
-  PrintHexInt(23,24,(Tens[1]));
-}
+    DrawMap2(6, 22, (numbers[Score[0]]));
+    DrawMap2(18, 22, (numbers2[Score[1]]));
+    PrintHexInt(1, 24, Tens[0]);
+    PrintHexInt(23, 24, Tens[1]);
 
-void processTank1Forward(void) {
-  p1_tank.left += p1_tank.vX / 2;
-  p1_tank.top += p1_tank.vY / 2;
-  p1_tank.right = p1_tank.left + 8;
-  p1_tank.bottom = p1_tank.top + 8;
-  MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
-  // Update tanks position on the tile grid
-  p1_tank.x = p1_tank.left / 8;
-  p1_tank.y = p1_tank.top / 8;
-  wallTankCollision(0,p1_tank.x,p1_tank.y,p1_tank.angle);
-  TriggerNote(2, 2, 20, 127);
-}
-
-void processTank2Forward(void) {
-  p2_tank.left += p2_tank.vX / 2;
-  p2_tank.top += p2_tank.vY / 2;
-  p2_tank.right = p2_tank.left + 8;
-  p2_tank.bottom = p2_tank.top + 8;
-  MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
-  // Update tank 2's position on the tile grid
-  p2_tank.x = p2_tank.left / 8;
-  p2_tank.y = p2_tank.top / 8;
-  wallTankCollision(1,p2_tank.x,p2_tank.y,p2_tank.angle);
-  TriggerNote(1, 2, 20, 127);
-}
-
-void initMaze(void) {
-  DrawMap2(0, 0, mazes[maze]);
-
-  MapSprite2(0, tank1_090, 0); // setup tank 1 for drawing
-  p1_tank.left = 8;            // set tank to the left
-  p1_tank.top = 80;            // center tank vertically
-  p1_tank.right = 13;
-  p1_tank.bottom = 93;
-  p1_tank.angle = 4;           // face right
-  p1_tank.x = 1;
-  p1_tank.y = 10;
-  p1_tank.vX = 1;
-  p1_tank.vY = 0;
-  p1_tank.advance = true;
-  p1_bullet.vX = 1;
-  p1_bullet.vY = 0;
-  p1_bullet.active = false;
-  p1_bullet.age = 0;
-  p1_bullet.gridX = 1;
-  p1_bullet.gridY = 10;
-  p1_bullet.top = 8;
-  p1_bullet.bottom = 16;
-  p1_bullet.left = 8;
-  p1_bullet.right = 16;
-  p1_bullet.tside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,0);
-  p1_bullet.bside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,2);
-  p1_bullet.lside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,3);
-  p1_bullet.rside = wallCheck(p1_bullet.gridX, p1_bullet.gridY,1);
-
-  MapSprite2(2, tank2_270, 0); // setup tank 2 for drawing
-  p2_tank.left = 208;          // set tank to the right
-  p2_tank.top = 80;            // center tank vertically
-  p2_tank.right = 210;
-  p2_tank.bottom = 93;
-  p2_tank.angle = 12;          // face left
-  p2_tank.x = 26;
-  p2_tank.y = 10;
-  p2_tank.vX = -1;
-  p2_tank.vY = 0;
-  p2_tank.advance = true;
-  p2_bullet.vX = -1;
-  p2_bullet.vY = 0;
-  p2_bullet.active = false;
-  p2_bullet.age = 0;
-  p2_bullet.gridX = 25;
-  p2_bullet.gridY = 10;
-  p2_bullet.top = p2_bullet.gridY * 8;
-  p2_bullet.bottom = p2_bullet.top + 8;
-  p2_bullet.left = p2_bullet.gridX * 8;
-  p2_bullet.right = p2_bullet.left + 8;
-  p2_bullet.tside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,0);
-  p2_bullet.rside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,1);
-  p2_bullet.bside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,2);
-  p2_bullet.lside = wallCheck(p2_bullet.gridX, p2_bullet.gridY,3);
-}
-
-void drawMainMenu()
-{
-  ClearVram();
-  Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
-  Print(13,2,PSTR("V1.1"));
-  DrawMap2(8,4,title_map);
-  Print(7,18,PSTR("BY DAN MACDONALD"));
-  Print(10,22,PSTR("NO MAZE"));
-  Print(10,23,PSTR("MAZE #1"));
-  Print(10,24,PSTR("MAZE #2"));
-  Print(10,25,PSTR("MAZE #3"));
-
-  if (bounce == true) {
-  Print(10,26,PSTR("BOUNCE ON"));
-  }
-  else {
-    Print(10,26,PSTR("BOUNCE OFF"));
-  }
-  SetTile(7,pgm_read_byte(&menu_opts[maze]),101);
-}
-
-void processMainMenu()
-{
-  tank1Held = ReadJoypad(0); // read in our player one joypad input
-  //pressing something and it isn't the same buttons as last frame so it's a new button press, not a hold
-  if (tank1Held!=tank1Prev) {
-    if (tank1Held & BTN_DOWN) {
-      maze++;
-      TriggerNote(1, 38, 75, 127);
-      if (maze > 4) {
-        maze = 0;
-      }
-      drawMainMenu();
+    if (Tens[0] > 0 || Tens[1] > 0) {
+        shakeTimer = 60;
+        for(int i=0; i<4; i++){
+            TriggerNote(2, 38, 50-(i*12), 127);
+            WaitVsync(12);
+        }
+        ClearVram();
+        if (Tens[0] > 0) Print(9, 12, PSTR("PLAYER 1 VICTORIOUS"));
+        else Print(9, 12, PSTR("COMPUTER VICTORIOUS"));
+        WaitVsync(180);
+        game_state = MAIN_MENU;
     }
-    if (tank1Held & BTN_UP) {
-      maze--;
-      TriggerNote(1, 38, 75, 127);
-      if (maze < 0) {
-        maze = 4;
-      }
-      drawMainMenu();
-    }
-    if (tank1Held & BTN_LEFT) {
-      if (maze == 4) {
-        bounce = !bounce;
-        TriggerNote(1, 38, 75, 127);
-      }
-      drawMainMenu();
-    }
-    if (tank1Held & BTN_RIGHT) {
-      if (maze == 4) {
-        bounce = !bounce;
-        TriggerNote(1, 38, 75, 127);
-      }
-      drawMainMenu();
-    }
-    if (tank1Held & BTN_START) {
-      if (maze != 4) {
-        game_state = GAME;
-      }
-    }
-    tank1Prev = tank1Held;
-  }
 }
+
+void drawMainMenu() {
+    ClearVram();
+    Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
+    Print(13,2,PSTR("V1.2"));
+    DrawMap2(8,4,title_map);
+    Print(10,20,PSTR("MAZE #0"));
+    Print(10,21,PSTR("MAZE #1"));
+    Print(10,22,PSTR("MAZE #2"));
+    Print(10,23,PSTR("MAZE #3"));
+    if (maze < 8) {
+        if (maze % 2 == 0) Print(18, 20 + (maze/2), PSTR("2P"));
+        else Print(18, 20 + (maze/2), PSTR("1P"));
+    }
+    if (bounce) Print(10, 25, PSTR("BOUNCE ON"));
+    else Print(10, 25, PSTR("BOUNCE OFF"));
+    SetTile(8, pgm_read_byte(&menu_y_pos[maze]), 101);
+}
+
+void processMainMenu() {
+    tank1Held = ReadJoypad(0);
+    if (tank1Held != tank1Prev) {
+        if (tank1Held & BTN_DOWN) { maze = (maze + 2) % 10; if(maze==9) maze=0; drawMainMenu(); }
+        if (tank1Held & BTN_UP) { if(maze==0) maze=8; else maze-=2; drawMainMenu(); }
+        if ((tank1Held & BTN_LEFT) || (tank1Held & BTN_RIGHT)) {
+            if (maze < 8) { if (maze % 2 == 0) maze++; else maze--; }
+            else bounce = !bounce;
+            drawMainMenu();
+        }
+        if (tank1Held & BTN_START) {
+            if (maze != 8) {
+                isSinglePlayer = (maze % 2 != 0);
+                maze = maze / 2;
+                game_state = GAME;
+            }
+        }
+        tank1Prev = tank1Held;
+    }
+}
+
 
 // To implement bouncy bullets, we need a quick and easy way to check if a
 // tile next to the current one contains a wall tile, hence wallCheck():
@@ -744,51 +354,40 @@ int wallCheck(int gridX, int gridY, int side) {
 }
 
 void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
+    struct tankStruct *t = (tankN == 0) ? &p1_tank : &p2_tank;
 
-  // Calculate the next position based on the tank's angle
-  if (tankAngle == 0) {
-    nextX = tankX;
-    nextY = tankY;
-  } else if (tankAngle == 1 || tankAngle == 2 || tankAngle == 3) {
-    nextX = tankX + 1;
-    nextY = tankY - 1;
-  } else if (tankAngle == 4) {
-    nextX = tankX + 1;
-    nextY = tankY;
-  } else if (tankAngle == 5 || tankAngle == 6 || tankAngle == 7) {
-    nextX = tankX + 1;
-    nextY = tankY + 1;
-  } else if (tankAngle == 8) {
-    nextX = tankX;
-    nextY = tankY + 1;
-  } else if (tankAngle == 9 || tankAngle == 10 || tankAngle == 11) {
-    nextX = tankX - 1;
-    nextY = tankY + 1;
-  } else if (tankAngle == 12) {
-    nextX = tankX;
-    nextY = tankY;
-  } else if (tankAngle == 13 || tankAngle == 14 || tankAngle == 15) {
-    nextX = tankX - 1;
-    nextY = tankY - 1;
-  }
+    // 1. HARD BOUNDARY CLAMP (Stop passing through outer walls)
+    // Maze usually starts at tile 1 and ends at tile 28 (240 pixels / 8)
+    // We keep the tank within 8 pixels of the edge
+    if (t->left < 8)   { t->left = 8; }
+    if (t->left > 224) { t->left = 224; }
+    if (t->top < 8)    { t->top = 8; }
+    if (t->top > 168)  { t->top = 168; }
 
-  // Check if the next tank position is occupied by a wall
-  if (GetTile(nextX, nextY) == WALL_TILE) {
-    if (tankN == 0) {
-      p1_tank.advance = false;
+    // 2. MULTI-POINT TILE CHECK
+    // Check all four corners of the 8x8 tank sprite
+    int margin = 1; // Small buffer so we don't snag on corners
+    bool blocked = false;
+
+    if (GetTile((t->left + margin) / 8, (t->top + margin) / 8) == WALL_TILE ||
+        GetTile((t->left + 7 - margin) / 8, (t->top + margin) / 8) == WALL_TILE ||
+        GetTile((t->left + margin) / 8, (t->top + 7 - margin) / 8) == WALL_TILE ||
+        GetTile((t->left + 7 - margin) / 8, (t->top + 7 - margin) / 8) == WALL_TILE) {
+        blocked = true;
     }
-    else if (tankN == 1) {
-      p2_tank.advance = false;
+
+    if (blocked) {
+        t->advance = false;
+        // 3. PUSH-BACK (Crucial for AI not to get stuck "inside" a wall)
+        t->left -= t->vX;
+        t->top  -= t->vY;
+    } else {
+        t->advance = true;
     }
-  }
-  if (GetTile(nextX, nextY) == 0x0) {
-    if (tankN == 0) {
-      p1_tank.advance = true;
-    }
-    else if (tankN == 1) {
-      p2_tank.advance = true;
-    }
-  }
+
+    // Update hitbox boundaries for bullet detection
+    t->bottom = t->top + 8;
+    t->right = t->left + 8;
 }
 
 void hyperTanks(void) {
@@ -804,7 +403,7 @@ void hyperTanks(void) {
   p2_tank.right = p2_tank.left + 8;
   p2_tank.bottom = p2_tank.top + 8;
   p2_tank.angle = rand() % 15;
-  tank2_current_sprite = tank2_sprites[p2_tank.angle];
+  tank2_current_sprite = tank1_sprites[p2_tank.angle];
   processTrig();
   MapSprite2(2, tank2_current_sprite, 0);
   p2_bullet.active = false;
@@ -827,4 +426,188 @@ void hyperTanks(void) {
   MapSprite2(0, tank1_current_sprite, 0);
   p1_bullet.active = false;
   p1_bullet.age = 0;
+}
+
+void processTrig(void) {
+    p1_tank.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
+    p1_tank.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
+    p2_tank.vX = sin(2 * M_PI * (angles[p2_tank.angle] / 360));
+    p2_tank.vY = -cos(2 * M_PI * (angles[p2_tank.angle] / 360));
+}
+
+void processBullets(void) {
+    // --- Player 1 Bullet vs Player 2 Tank ---
+    if (p1_bullet.active) {
+        float oldX = p1_bullet.x;
+        float oldY = p1_bullet.y;
+
+        p1_bullet.x += p1_bullet.vX * 3;
+        p1_bullet.y += p1_bullet.vY * 3;
+
+        // 1. TANK COLLISION (Check if hitting Player 2)
+        if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= (p2_tank.left + 8) &&
+            p1_bullet.y >= p2_tank.top  && p1_bullet.y <= (p2_tank.top + 8)) {
+
+            p1_bullet.active = false;
+            TriggerFx(SFX_EXPLODE, 0xFF, true);
+            Score[0]++;
+            if (Score[0] > 9) { Tens[0]++; Score[0] = 0; }
+            hyperTanks(); // Respawn
+        }
+        // 2. WALL COLLISION (Only check if we haven't already hit a tank)
+        else if (GetTile(p1_bullet.x / 8, p1_bullet.y / 8) == WALL_TILE) {
+            if (!bounce) {
+                p1_bullet.active = false;
+            } else {
+                if (GetTile(oldX / 8, p1_bullet.y / 8) == WALL_TILE) {
+                    p1_bullet.vY = -p1_bullet.vY;
+                    p1_bullet.y = oldY;
+                } else {
+                    p1_bullet.vX = -p1_bullet.vX;
+                    p1_bullet.x = oldX;
+                }
+                TriggerNote(2, 38, p1_bullet.pitch, 127);
+                p1_bullet.pitch++;
+                p1_bullet.age += 10;
+                if (p1_bullet.age > 100) p1_bullet.active = false;
+            }
+        }
+
+        if (p1_bullet.active) MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
+        else MoveSprite(1, 0, 240, 1, 1);
+    }
+
+    // --- Player 2 Bullet vs Player 1 Tank ---
+    if (p2_bullet.active) {
+        float oldX2 = p2_bullet.x;
+        float oldY2 = p2_bullet.y;
+
+        p2_bullet.x += p2_bullet.vX * 3;
+        p2_bullet.y += p2_bullet.vY * 3;
+
+        // 1. TANK COLLISION (Check if hitting Player 1)
+        if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= (p1_tank.left + 8) &&
+            p2_bullet.y >= p1_tank.top  && p2_bullet.y <= (p1_tank.top + 8)) {
+
+            p2_bullet.active = false;
+            TriggerFx(SFX_EXPLODE, 0xFF, true);
+            Score[1]++;
+            if (Score[1] > 9) { Tens[1]++; Score[1] = 0; }
+            hyperTanks(); // Respawn
+        }
+        // 2. WALL COLLISION
+        else if (GetTile(p2_bullet.x / 8, p2_bullet.y / 8) == WALL_TILE) {
+            if (!bounce) {
+                p2_bullet.active = false;
+            } else {
+                if (GetTile(oldX2 / 8, p2_bullet.y / 8) == WALL_TILE) {
+                    p2_bullet.vY = -p2_bullet.vY;
+                    p2_bullet.y = oldY2;
+                } else {
+                    p2_bullet.vX = -p2_bullet.vX;
+                    p2_bullet.x = oldX2;
+                }
+                TriggerNote(2, 38, p2_bullet.pitch, 127);
+                p2_bullet.pitch++;
+                p2_bullet.age += 10;
+                if (p2_bullet.age > 100) p2_bullet.active = false;
+            }
+        }
+
+        if (p2_bullet.active) MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
+        else MoveSprite(3, 0, 240, 1, 1);
+    }
+}
+
+void initMaze(void) {
+    ClearVram();
+    // mazes[maze] uses the global array of map pointers
+    DrawMap2(0, 0, mazes[maze]);
+    hyperTanks(); // Reset tank positions and sprites
+}
+
+void processTank1(void) {
+    // 1. Read Input from Joypad 1 (Index 0)
+    tank1Held = ReadJoypad(0);
+    tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
+
+    // 2. Handle Rotation (Left/Right)
+    if (tank1Pressed & BTN_RIGHT) {
+        p1_tank.angle = (p1_tank.angle + 1) % 16;
+        processTrig(); // Updates vX and vY based on new angle
+    }
+    if (tank1Pressed & BTN_LEFT) {
+        p1_tank.angle = (p1_tank.angle + 15) % 16;
+        processTrig();
+    }
+
+    // 3. Handle Firing (A or B button)
+    if ((tank1Pressed & BTN_A || tank1Pressed & BTN_B) && !p1_bullet.active) {
+        p1_bullet.active = true;
+        p1_bullet.age = 0;
+        p1_bullet.x = p1_tank.left;
+        p1_bullet.y = p1_tank.top;
+        p1_bullet.vX = p1_tank.vX;
+        p1_bullet.vY = p1_tank.vY;
+        p1_bullet.pitch = 75;
+        MapSprite2(1, bullet, 0); // P1 bullet is usually sprite 1
+        TriggerFx(SFX_FIRE, 0xFF, true);
+    }
+
+    // 4. Handle Movement (Up button)
+    // p1_tank.advance is a bool set by the collision system
+    if ((tank1Held & BTN_UP) && p1_tank.advance) {
+        p1_tank.left += p1_tank.vX / 2;
+        p1_tank.top += p1_tank.vY / 2;
+    }
+
+    // 5. Update Collision Grid and Visuals
+    p1_tank.x = p1_tank.left / 8; // Convert pixel pos to tile grid
+    p1_tank.y = p1_tank.top / 8;
+
+    // Check if the move is valid or hitting a wall
+    wallTankCollision(0, p1_tank.x, p1_tank.y, p1_tank.angle);
+
+    // Map the correct rotation tile to Sprite 0
+    MapSprite2(0, tank1_sprites[p1_tank.angle], 0);
+    MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
+
+    // Store state for the next frame's "Pressed" check
+    tank1Prev = tank1Held;
+}
+
+void processTank2(void) {
+    tank2Held = ReadJoypad(1); // Joypad index 1 is Player 2
+    tank2Pressed = tank2Held & (tank2Held ^ tank2Prev);
+
+    if (tank2Pressed & BTN_RIGHT) {
+        p2_tank.angle = (p2_tank.angle + 1) % 16;
+        processTrig();
+    }
+    if (tank2Pressed & BTN_LEFT) {
+        p2_tank.angle = (p2_tank.angle + 15) % 16;
+        processTrig();
+    }
+    if (tank2Pressed & BTN_A && !p2_bullet.active) {
+        p2_bullet.active = true;
+        p2_bullet.age = 0;
+        p2_bullet.x = p2_tank.left;
+        p2_bullet.y = p2_tank.top;
+        p2_bullet.vX = p2_tank.vX;
+        p2_bullet.vY = p2_tank.vY;
+        TriggerFx(SFX_FIRE, 0xFF, true);
+    }
+    if ((tank2Held & BTN_UP) && p2_tank.advance) {
+        p2_tank.left += p2_tank.vX / 2;
+        p2_tank.top += p2_tank.vY / 2;
+    }
+
+    p2_tank.x = p2_tank.left / 8;
+    p2_tank.y = p2_tank.top / 8;
+    wallTankCollision(1, p2_tank.x, p2_tank.y, p2_tank.angle);
+
+    MapSprite2(2, tank2_sprites[p2_tank.angle], 0);
+    MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
+
+    tank2Prev = tank2Held;
 }
