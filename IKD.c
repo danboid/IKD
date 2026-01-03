@@ -577,11 +577,13 @@ void processTank1(void) {
     if ((tank1Held & BTN_UP) && p1_tank.advance) {
         p1_tank.left += p1_tank.vX / 2;
         p1_tank.top += p1_tank.vY / 2;
+        TriggerNote(2, 2, 20, 127);
     }
 
     if ((tank1Held & BTN_B) && p1_tank.advance) {
         p1_tank.left += p1_tank.vX / 2;
         p1_tank.top += p1_tank.vY / 2;
+        TriggerNote(2, 2, 20, 127);
     }
 
     // 5. Update Collision Grid and Visuals
@@ -625,10 +627,12 @@ void processTank2(void) {
     if ((tank2Held & BTN_UP) && p2_tank.advance) {
         p2_tank.left += p2_tank.vX / 2;
         p2_tank.top += p2_tank.vY / 2;
+        TriggerNote(1, 2, 20, 127);
     }
     if ((tank2Held & BTN_B) && p2_tank.advance) {
         p2_tank.left += p2_tank.vX / 2;
         p2_tank.top += p2_tank.vY / 2;
+        TriggerNote(1, 2, 20, 127);
     }
 
     p2_tank.x = p2_tank.left / 8;
