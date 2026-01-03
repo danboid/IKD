@@ -22,7 +22,6 @@ typedef enum {MAIN_MENU, GAME} state;
 state game_state = MAIN_MENU;
 bool isSinglePlayer = false;
 bool bounce = true;
-//int shakeTimer = 0;
 int seed, maze, nextX, nextY = 0;
 
 int aiStuckTimer = 0;
@@ -55,15 +54,15 @@ const char *tank2_current_sprite;
 float angles[] = {0, 23, 45, 68, 90, 113, 135, 158, 180, 203, 225, 248, 270, 293, 315, 338};
 
 const int8_t angle_lut[9][9] PROGMEM = {
-    {14, 14, 13, 13, 12, 11, 11, 10, 10},
-    {14, 14, 14, 13, 12, 11, 10, 10, 10},
-    {15, 15, 14, 13, 12, 11, 10,  9,  9},
-    {15, 15, 15, 14, 12, 10,  9,  9,  9},
-    { 0,  0,  0,  0,  0,  4,  4,  4,  4},
-    { 1,  1,  1,  2,  4,  6,  7,  7,  7},
-    { 1,  1,  2,  3,  4,  5,  6,  7,  7},
-    { 2,  2,  2,  3,  4,  5,  6,  6,  6},
-    { 2,  2,  3,  3,  4,  5,  5,  6,  6}
+    {14, 14, 15, 15,  0,  1,  1,  2,  2}, // dy = -4 (P1 is far above)
+    {14, 14, 14, 15,  0,  1,  2,  2,  2},
+    {13, 13, 14, 15,  0,  1,  2,  3,  3},
+    {13, 13, 13, 14,  0,  2,  3,  3,  3},
+    {12, 12, 12, 12,  0,  4,  4,  4,  4}, // dy = 0  (P1 is on same Y)
+    {11, 11, 11, 10,  8,  6,  5,  5,  5},
+    {11, 11, 10,  9,  8,  7,  6,  5,  5},
+    {10, 10, 10,  9,  8,  7,  6,  6,  6},
+    {10, 10,  9,  9,  8,  7,  7,  6,  6}  // dy = 4  (P1 is far below)
 };
 
 const unsigned char menu_y_pos[] PROGMEM = {20, 20, 21, 21, 22, 22, 23, 23, 25};
@@ -101,7 +100,7 @@ void drawMainMenu(void);
 void processMainMenu(void);
 bool hasLineOfSight(void);
 int wallCheck(int gridX, int gridY, int side);
-void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle);
+void wallTankCollision(int tankN);
 
 // --- MAIN LOOP ---
 int main() {
@@ -154,8 +153,8 @@ void initIKD(void) {
 }
 
 void processAI(void) {
-    // 1. POSITION TRACKING (For the Stuck Timer)
-    if (abs(p2_tank.left - aiLastX) < 0.1 && abs(p2_tank.top - aiLastY) < 0.1) {
+    // 1. POSITION TRACKING (Stuck Detection)
+    if (abs(p2_tank.left - aiLastX) < 0.2 && abs(p2_tank.top - aiLastY) < 0.2) {
         aiStuckTimer++;
     } else {
         aiStuckTimer = 0;
@@ -163,73 +162,56 @@ void processAI(void) {
     aiLastX = p2_tank.left;
     aiLastY = p2_tank.top;
 
-    // 2. COLLISION CHECK
-    p2_tank.x = p2_tank.left / 8;
-    p2_tank.y = p2_tank.top / 8;
-    wallTankCollision(1, p2_tank.x, p2_tank.y, p2_tank.angle);
+    // 2. DIRECTIONAL LOGIC (Targeting P1)
+    int dx = p1_tank.x - p2_tank.x;
+    int dy = p1_tank.y - p2_tank.y;
 
-    // 3. DECISION & MOVEMENT LOGIC
-    if (p2_tank.advance && aiDecisionTimer == 0) {
-        // --- NORMAL PURSUIT MODE ---
-        int dx = p1_tank.x - p2_tank.x;
-        int dy = p1_tank.y - p2_tank.y;
+    // Clamp to -4 to 4 range, then shift to 0 to 8 for the table index
+    int lutX = (dx < -4 ? -4 : (dx > 4 ? 4 : dx)) + 4;
+    int lutY = (dy < -4 ? -4 : (dy > 4 ? 4 : dy)) + 4;
 
-        // Clamp values for LUT index (9x9 table)
-        int lutX = (dx < -4 ? -4 : (dx > 4 ? 4 : dx)) + 4;
-        int lutY = (dy < -4 ? -4 : (dy > 4 ? 4 : dy)) + 4;
-        int targetAngle = pgm_read_byte(&(angle_lut[lutY][lutX]));
+    // Read the target angle from Flash memory (PROGMEM)
+    int targetAngle = pgm_read_byte(&(angle_lut[lutY][lutX]));
 
-        // Smooth adjustment toward player (every 4th frame)
-        if (p2_tank.angle != targetAngle && (seed % 4 == 0)) {
-            int diff = (targetAngle - p2_tank.angle + 16) % 16;
-            if (diff < 8) p2_tank.angle = (p2_tank.angle + 1) % 16;
-            else p2_tank.angle = (p2_tank.angle + 15) % 16;
-            processTrig();
-        }
-
-        // Forward motion
-        p2_tank.left += p2_tank.vX / 2;
-        p2_tank.top += p2_tank.vY / 2;
-
-    } else {
-        // --- WALL RECOVERY MODE ---
-        // If we just hit a wall (advance is false) and timer isn't running yet
-        if (aiDecisionTimer == 0) {
-            aiDecisionTimer = 60; // 1 second "think" time
-
-            // Kickback: Back up slightly so we aren't rubbing the wall
-            p2_tank.left -= (p2_tank.vX * 1.5f);
-            p2_tank.top  -= (p2_tank.vY * 1.5f);
-        }
-
-        aiDecisionTimer--;
-
-        // Halfway through the pause, change direction exactly one step
-        if (aiDecisionTimer == 30) {
-            // Jitter the angle: use seed to pick left or right turn
-            if (seed % 2 == 0) p2_tank.angle = (p2_tank.angle + 1) % 16;
-            else p2_tank.angle = (p2_tank.angle + 15) % 16;
-            processTrig();
-        }
-
-        // Note: while aiDecisionTimer > 0, we don't apply movement (vX/vY)
+    // Smooth rotation toward target
+    if (p2_tank.angle != targetAngle && (seed % 4 == 0)) {
+        int diff = (targetAngle - p2_tank.angle + 16) % 16;
+        if (diff < 8) p2_tank.angle = (p2_tank.angle + 1) % 16;
+        else p2_tank.angle = (p2_tank.angle + 15) % 16;
+        processTrig(); // Recalculate vX and vY
     }
 
-    // 4. SHOOTING logic (Only if not in recovery mode)
-    if (!p2_bullet.active && hasLineOfSight() && aiDecisionTimer == 0) {
-        if (rand() % 20 == 1) {
+    // 3. FORWARD MOVEMENT
+    if (aiStuckTimer < 40) {
+        p2_tank.left += p2_tank.vX / 2;
+        p2_tank.top  += p2_tank.vY / 2;
+    } else {
+        // PANIC MODE: Break the corner lock
+        if (seed % 8 == 0) {
+            p2_tank.angle = (p2_tank.angle + 1) % 16;
+            processTrig();
+        }
+        p2_tank.left += p2_tank.vX / 4;
+        p2_tank.top  += p2_tank.vY / 4;
+    }
+
+    // 4. COLLISION RESOLUTION
+    wallTankCollision(1);
+
+    // 5. SHOOTING & GRAPHICS
+    if (!p2_bullet.active && hasLineOfSight()) {
+        if (rand() % 30 == 1) {
             p2_bullet.active = true;
-            p2_bullet.pitch = 60;
             p2_bullet.x = p2_tank.left;
             p2_bullet.y = p2_tank.top;
             p2_bullet.vX = p2_tank.vX;
             p2_bullet.vY = p2_tank.vY;
+            p2_bullet.pitch = 60;
             MapSprite2(3, bullet, 0);
             TriggerFx(SFX_FIRE, 0xFF, true);
         }
     }
 
-    // 5. UPDATE GRAPHICS
     MapSprite2(2, tank2_sprites[p2_tank.angle], 0);
     MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
 }
@@ -256,14 +238,13 @@ void processScore(void) {
     PrintHexInt(23, 24, Tens[1]);
 
     if (Tens[0] > 0 || Tens[1] > 0) {
-        //shakeTimer = 60;
         for(int i=0; i<4; i++){
             TriggerNote(2, 38, 50-(i*12), 127);
             WaitVsync(12);
         }
         ClearVram();
-        if (Tens[0] > 0) Print(9, 12, PSTR("PLAYER WINS"));
-        else Print(9, 12, PSTR("UZEBOX WINS"));
+        if (Tens[0] > 0) Print(9, 12, PSTR("PLAYER 1 WINS"));
+        else Print(9, 12, PSTR("PLAYER 2 WINS"));
         WaitVsync(180);
         game_state = MAIN_MENU;
     }
@@ -272,7 +253,7 @@ void processScore(void) {
 void drawMainMenu() {
     ClearVram();
     Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
-    Print(13,2,PSTR("V1.3"));
+    Print(13,2,PSTR("V1.4"));
     DrawMap2(8,4,title_map);
 
     // Draw Maze Labels
@@ -371,39 +352,34 @@ int wallCheck(int gridX, int gridY, int side) {
   }
 }
 
-void wallTankCollision(int tankN, int tankX, int tankY, int tankAngle) {
+void wallTankCollision(int tankN) {
     struct tankStruct *t = (tankN == 0) ? &p1_tank : &p2_tank;
 
-    // 1. HARD BOUNDARY CLAMP (Stop passing through outer walls)
-    // Maze usually starts at tile 1 and ends at tile 28 (240 pixels / 8)
-    // We keep the tank within 8 pixels of the edge
-    if (t->left < 8)   { t->left = 8; }
-    if (t->left > 224) { t->left = 224; }
-    if (t->top < 8)    { t->top = 8; }
-    if (t->top > 168)  { t->top = 168; }
+    if (t->left < 8)   t->left = 8;
+    if (t->left > 224) t->left = 224;
+    if (t->top < 8)    t->top = 8;
+    if (t->top > 168)  t->top = 168;
 
-    // 2. MULTI-POINT TILE CHECK
-    // Check all four corners of the 8x8 tank sprite
-    int margin = 1; // Small buffer so we don't snag on corners
-    bool blocked = false;
+    int margin = 2;
+    bool collisionX = false;
 
     if (GetTile((t->left + margin) / 8, (t->top + margin) / 8) == WALL_TILE ||
         GetTile((t->left + 7 - margin) / 8, (t->top + margin) / 8) == WALL_TILE ||
         GetTile((t->left + margin) / 8, (t->top + 7 - margin) / 8) == WALL_TILE ||
         GetTile((t->left + 7 - margin) / 8, (t->top + 7 - margin) / 8) == WALL_TILE) {
-        blocked = true;
+        collisionX = true;
     }
 
-    if (blocked) {
+    if (collisionX) {
+        t->left -= (t->vX * 1.1f);
+        t->top  -= (t->vY * 1.1f);
         t->advance = false;
-        // 3. PUSH-BACK (Crucial for AI not to get stuck "inside" a wall)
-        t->left -= (t->vX * 1.2f);
-        t->top  -= (t->vY * 1.2f);
     } else {
         t->advance = true;
     }
 
-    // Update hitbox boundaries for bullet detection
+    t->x = t->left / 8;
+    t->y = t->top / 8;
     t->bottom = t->top + 8;
     t->right = t->left + 8;
 }
@@ -447,10 +423,15 @@ void hyperTanks(void) {
 }
 
 void processTrig(void) {
-    p1_tank.vX = sin(2 * M_PI * (angles[p1_tank.angle] / 360));
-    p1_tank.vY = -cos(2 * M_PI * (angles[p1_tank.angle] / 360));
-    p2_tank.vX = sin(2 * M_PI * (angles[p2_tank.angle] / 360));
-    p2_tank.vY = -cos(2 * M_PI * (angles[p2_tank.angle] / 360));
+    // 0 degrees is UP: vX = 0, vY = -1
+    // 90 degrees is RIGHT: vX = 1, vY = 0
+    float rad = (angles[p1_tank.angle]) * (M_PI / 180.0f);
+    p1_tank.vX = sin(rad);
+    p1_tank.vY = -cos(rad);
+
+    rad = (angles[p2_tank.angle]) * (M_PI / 180.0f);
+    p2_tank.vX = sin(rad);
+    p2_tank.vY = -cos(rad);
 }
 
 void processBullets(void) {
@@ -560,7 +541,7 @@ void processTank1(void) {
     }
 
     // 3. Handle Firing (A or B button)
-    if ((tank1Pressed & BTN_A || tank1Pressed & BTN_B) && !p1_bullet.active) {
+    if (tank1Pressed & BTN_A && !p1_bullet.active) {
         p1_bullet.active = true;
         p1_bullet.age = 0;
         p1_bullet.x = p1_tank.left;
@@ -591,7 +572,7 @@ void processTank1(void) {
     p1_tank.y = p1_tank.top / 8;
 
     // Check if the move is valid or hitting a wall
-    wallTankCollision(0, p1_tank.x, p1_tank.y, p1_tank.angle);
+    wallTankCollision(0);
 
     // Map the correct rotation tile to Sprite 0
     MapSprite2(0, tank1_sprites[p1_tank.angle], 0);
@@ -623,7 +604,7 @@ void processTank2(void) {
     p2_bullet.pitch = 75; // Initialize pitch like P1 does
     MapSprite2(3, bullet, 0);
     TriggerFx(SFX_FIRE, 0xFF, true);
-}
+    }
     if ((tank2Held & BTN_UP) && p2_tank.advance) {
         p2_tank.left += p2_tank.vX / 2;
         p2_tank.top += p2_tank.vY / 2;
@@ -637,7 +618,7 @@ void processTank2(void) {
 
     p2_tank.x = p2_tank.left / 8;
     p2_tank.y = p2_tank.top / 8;
-    wallTankCollision(1, p2_tank.x, p2_tank.y, p2_tank.angle);
+    wallTankCollision(1);
 
     MapSprite2(2, tank2_sprites[p2_tank.angle], 0);
     MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
