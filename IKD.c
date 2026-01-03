@@ -172,46 +172,49 @@ void processAI(void) {
         // --- NORMAL PURSUIT MODE ---
         int dx = p1_tank.x - p2_tank.x;
         int dy = p1_tank.y - p2_tank.y;
+
+        // Clamp values for LUT index (9x9 table)
         int lutX = (dx < -4 ? -4 : (dx > 4 ? 4 : dx)) + 4;
         int lutY = (dy < -4 ? -4 : (dy > 4 ? 4 : dy)) + 4;
         int targetAngle = pgm_read_byte(&(angle_lut[lutY][lutX]));
 
-        // Smooth adjustment: only turn if we aren't blocked
+        // Smooth adjustment toward player (every 4th frame)
         if (p2_tank.angle != targetAngle && (seed % 4 == 0)) {
-            if ((targetAngle - p2_tank.angle + 16) % 16 < 8) p2_tank.angle = (p2_tank.angle + 1) % 16;
+            int diff = (targetAngle - p2_tank.angle + 16) % 16;
+            if (diff < 8) p2_tank.angle = (p2_tank.angle + 1) % 16;
             else p2_tank.angle = (p2_tank.angle + 15) % 16;
             processTrig();
         }
 
-        // Try to move forward
+        // Forward motion
         p2_tank.left += p2_tank.vX / 2;
         p2_tank.top += p2_tank.vY / 2;
 
     } else {
         // --- WALL RECOVERY MODE ---
+        // If we just hit a wall (advance is false) and timer isn't running yet
         if (aiDecisionTimer == 0) {
-            // We just hit a wall!
-            // 1. Back up slightly more to get clear of the collision box
-            p2_tank.left -= p2_tank.vX;
-            p2_tank.top -= p2_tank.vY;
-            // 2. Start 1-second wait (60 frames)
-            aiDecisionTimer = 60;
+            aiDecisionTimer = 60; // 1 second "think" time
+
+            // Kickback: Back up slightly so we aren't rubbing the wall
+            p2_tank.left -= (p2_tank.vX * 1.5f);
+            p2_tank.top  -= (p2_tank.vY * 1.5f);
         }
 
         aiDecisionTimer--;
 
-        // Halfway through the wait (after 0.5s), turn exactly one step
+        // Halfway through the pause, change direction exactly one step
         if (aiDecisionTimer == 30) {
-            // Decide to turn left or right based on seed
+            // Jitter the angle: use seed to pick left or right turn
             if (seed % 2 == 0) p2_tank.angle = (p2_tank.angle + 1) % 16;
             else p2_tank.angle = (p2_tank.angle + 15) % 16;
             processTrig();
         }
 
-        // Tank remains stationary until aiDecisionTimer hits 0
+        // Note: while aiDecisionTimer > 0, we don't apply movement (vX/vY)
     }
 
-    // 4. SHOOTING (Only when not stunned/waiting)
+    // 4. SHOOTING logic (Only if not in recovery mode)
     if (!p2_bullet.active && hasLineOfSight() && aiDecisionTimer == 0) {
         if (rand() % 20 == 1) {
             p2_bullet.active = true;
@@ -225,7 +228,7 @@ void processAI(void) {
         }
     }
 
-    // 5. UPDATE SPRITE
+    // 5. UPDATE GRAPHICS
     MapSprite2(2, tank2_sprites[p2_tank.angle], 0);
     MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
 }
