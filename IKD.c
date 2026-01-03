@@ -271,7 +271,7 @@ void processScore(void) {
 void drawMainMenu() {
     ClearVram();
     Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
-    Print(13,2,PSTR("V1.2"));
+    Print(13,2,PSTR("V1.3"));
     DrawMap2(8,4,title_map);
     Print(10,20,PSTR("MAZE #0"));
     Print(10,21,PSTR("MAZE #1"));
@@ -569,6 +569,11 @@ void processTank1(void) {
         p1_tank.top += p1_tank.vY / 2;
     }
 
+    if ((tank1Held & BTN_B) && p1_tank.advance) {
+        p1_tank.left += p1_tank.vX / 2;
+        p1_tank.top += p1_tank.vY / 2;
+    }
+
     // 5. Update Collision Grid and Visuals
     p1_tank.x = p1_tank.left / 8; // Convert pixel pos to tile grid
     p1_tank.y = p1_tank.top / 8;
@@ -606,6 +611,10 @@ void processTank2(void) {
         TriggerFx(SFX_FIRE, 0xFF, true);
     }
     if ((tank2Held & BTN_UP) && p2_tank.advance) {
+        p2_tank.left += p2_tank.vX / 2;
+        p2_tank.top += p2_tank.vY / 2;
+    }
+    if ((tank2Held & BTN_B) && p2_tank.advance) {
         p2_tank.left += p2_tank.vX / 2;
         p2_tank.top += p2_tank.vY / 2;
     }
