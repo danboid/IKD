@@ -110,6 +110,7 @@ int main() {
             initIKD();
             if(!IsSongPlaying()) StartSong(commando);
             drawMainMenu();
+            WaitVsync(1);   // Ensure the first frame renders properly
             while(game_state == MAIN_MENU) {
                 WaitVsync(1);
                 processMainMenu();
@@ -273,16 +274,25 @@ void drawMainMenu() {
     Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
     Print(13,2,PSTR("V1.3"));
     DrawMap2(8,4,title_map);
+
+    // Draw Maze Labels
     Print(10,20,PSTR("MAZE #0"));
     Print(10,21,PSTR("MAZE #1"));
     Print(10,22,PSTR("MAZE #2"));
     Print(10,23,PSTR("MAZE #3"));
+
+    // Draw the 1P/2P indicator for the CURRENTLY selected maze
+    // We only show "1P/2P" next to the maze that is being pointed at
     if (maze < 8) {
         if (maze % 2 == 0) Print(18, 20 + (maze/2), PSTR("2P"));
         else Print(18, 20 + (maze/2), PSTR("1P"));
     }
+
+    // Bounce Option
     if (bounce) Print(10, 25, PSTR("BOUNCE ON"));
     else Print(10, 25, PSTR("BOUNCE OFF"));
+
+    // Place the cursor (Tile 101) based on the menu_y_pos lookup table
     SetTile(8, pgm_read_byte(&menu_y_pos[maze]), 101);
 }
 
