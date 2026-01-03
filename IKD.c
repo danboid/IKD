@@ -612,14 +612,16 @@ void processTank2(void) {
         processTrig();
     }
     if (tank2Pressed & BTN_A && !p2_bullet.active) {
-        p2_bullet.active = true;
-        p2_bullet.age = 0;
-        p2_bullet.x = p2_tank.left;
-        p2_bullet.y = p2_tank.top;
-        p2_bullet.vX = p2_tank.vX;
-        p2_bullet.vY = p2_tank.vY;
-        TriggerFx(SFX_FIRE, 0xFF, true);
-    }
+    p2_bullet.active = true;
+    p2_bullet.age = 0;
+    p2_bullet.x = p2_tank.left;
+    p2_bullet.y = p2_tank.top;
+    p2_bullet.vX = p2_tank.vX;
+    p2_bullet.vY = p2_tank.vY;
+    p2_bullet.pitch = 75; // Initialize pitch like P1 does
+    MapSprite2(3, bullet, 0);
+    TriggerFx(SFX_FIRE, 0xFF, true);
+}
     if ((tank2Held & BTN_UP) && p2_tank.advance) {
         p2_tank.left += p2_tank.vX / 2;
         p2_tank.top += p2_tank.vY / 2;
