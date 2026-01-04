@@ -3,7 +3,7 @@
  *  \author Dan MacDonald
  *          BIG thanks to D3thAdd3r for his fantastic C64 Commando theme rendition!
  *          Score drawing code borrowed from Bradley Boccuzzi's Uzebox port of Pong.
- *  \date   2024
+ *  \date   2026
  */
 
 #include <avr/io.h>
@@ -32,6 +32,10 @@ int aiDecisionTimer = 0; // Tracks frames to wait after a collision
 
 int tank1Prev, tank1Held, tank1Pressed;
 int tank2Prev, tank2Held, tank2Pressed;
+
+int p1DeathTimer = 0;
+int p2DeathTimer = 0;
+#define DEATH_DURATION 120 // 2 seconds at 60fps
 
 unsigned char Score[2] = {0, 0};
 unsigned char Tens[2] = {0, 0};
@@ -160,6 +164,25 @@ void initIKD(void) {
 }
 
 void processAI(void) {
+    // --- DEATH SPIN LOGIC ---
+    if (p2DeathTimer > 0) {
+        p2DeathTimer--;
+
+        // Spin anticlockwise every 4 frames
+        if (seed % 4 == 0) {
+            p2_tank.angle = (p2_tank.angle + 15) % 16;
+        }
+
+        // When the timer runs out, reset the round
+        if (p2DeathTimer == 0) {
+            hyperTanks();
+        }
+
+        // Draw the spinning tank and EXIT early so the AI doesn't move/shoot
+        MapSprite2(2, tank2_sprites[p2_tank.angle], 0);
+        MoveSprite(2, p2_tank.left, p2_tank.top, 1, 1);
+        return;
+    }
     // 1. POSITION TRACKING (Stuck Detection)
     if (abs(p2_tank.left - aiLastX) < 0.2 && abs(p2_tank.top - aiLastY) < 0.2) {
         aiStuckTimer++;
@@ -451,13 +474,14 @@ void processBullets(void) {
         p1_bullet.y += p1_bullet.vY * 3;
 
         // 1. TANK COLLISION
-        if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= (p2_tank.left + 8) &&
+        if (p2DeathTimer == 0 &&
+            p1_bullet.x >= p2_tank.left && p1_bullet.x <= (p2_tank.left + 8) &&
             p1_bullet.y >= p2_tank.top  && p1_bullet.y <= (p2_tank.top + 8)) {
             p1_bullet.active = false;
             TriggerFx(SFX_EXPLODE, 0xFF, true);
             Score[0]++;
             if (Score[0] > 9) { Tens[0]++; Score[0] = 0; }
-            hyperTanks();
+            p2DeathTimer = DEATH_DURATION; // Start death spiral for p2
         }
         // 2. WALL COLLISION
         else if (GetTile(p1_bullet.x / 8, p1_bullet.y / 8) == WALL_TILE) {
@@ -492,13 +516,14 @@ void processBullets(void) {
         p2_bullet.y += p2_bullet.vY * 3;
 
         // 1. TANK COLLISION
-        if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= (p1_tank.left + 8) &&
+        if (p1DeathTimer == 0 &&
+            p2_bullet.x >= p1_tank.left && p2_bullet.x <= (p1_tank.left + 8) &&
             p2_bullet.y >= p1_tank.top  && p2_bullet.y <= (p1_tank.top + 8)) {
             p2_bullet.active = false;
             TriggerFx(SFX_EXPLODE, 0xFF, true);
             Score[1]++;
             if (Score[1] > 9) { Tens[1]++; Score[1] = 0; }
-            hyperTanks();
+            p1DeathTimer = DEATH_DURATION; // Start death spiral for p1
         }
         // 2. WALL COLLISION
         else if (GetTile(p2_bullet.x / 8, p2_bullet.y / 8) == WALL_TILE) {
@@ -533,6 +558,24 @@ void initMaze(void) {
 }
 
 void processTank1(void) {
+    if (p1DeathTimer > 0) {
+        p1DeathTimer--;
+
+        // Spin anticlockwise every 4 frames
+        if (seed % 4 == 0) {
+            p1_tank.angle = (p1_tank.angle + 15) % 16;
+        }
+
+        // Final frame: Respawn both tanks
+        if (p1DeathTimer == 0) {
+            hyperTanks();
+        }
+
+        // Draw the spinning tank and exit the function early
+        MapSprite2(0, tank1_sprites[p1_tank.angle], 0);
+        MoveSprite(0, p1_tank.left, p1_tank.top, 1, 1);
+        return;
+    }
     // 1. Read Input from Joypad 1 (Index 0)
     tank1Held = ReadJoypad(0);
     tank1Pressed = tank1Held & (tank1Held ^ tank1Prev);
@@ -590,6 +633,24 @@ void processTank1(void) {
 }
 
 void processTank2(void) {
+    if (p2DeathTimer > 0) {
+        p2DeathTimer--;
+
+        // Spin anticlockwise every 4 frames
+        if (seed % 4 == 0) {
+            p2_tank.angle = (p2_tank.angle + 15) % 16;
+        }
+
+        // Final frame: Respawn both tanks
+        if (p2DeathTimer == 0) {
+            hyperTanks();
+        }
+
+        // Draw the spinning tank and exit the function early
+        MapSprite2(0, tank2_sprites[p2_tank.angle], 0);
+        MoveSprite(0, p2_tank.left, p2_tank.top, 1, 1);
+        return;
+    }
     tank2Held = ReadJoypad(1); // Joypad index 1 is Player 2
     tank2Pressed = tank2Held & (tank2Held ^ tank2Prev);
 
