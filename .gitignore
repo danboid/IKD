@@ -1,0 +1,15 @@
+../data/commando-uncompressed.inc
+../data/music-compressed.inc
+IKD.eep
+IKD.elf
+IKD.hex
+IKD.lss
+IKD.map
+IKD.o
+IKD.uze
+uzeboxCore.o
+uzeboxSoundEngine.o
+uzeboxSoundEngineCore.o
+uzeboxVideoEngine.o
+uzeboxVideoEngineCore.o
+
