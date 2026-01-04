@@ -155,6 +155,10 @@ void initIKD(void) {
     SetTileTable(tileset);
     ClearVram();
 
+    // Reset death timers so tanks don't spin at start
+    p1DeathTimer = 0;
+    p2DeathTimer = 0;
+
     // HIDE ALL SPRITES
     // Moving them to a Y position beyond the screen height (e.g., 240)
     // effectively hides them from the renderer.
@@ -283,7 +287,7 @@ void processScore(void) {
 void drawMainMenu() {
     ClearVram();
     Print(2,0,PSTR("A TRIBUTE TO ATARI'S COMBAT"));
-    Print(13,2,PSTR("V1.4"));
+    Print(13,2,PSTR("V1.5"));
     DrawMap2(8,4,title_map);
 
     // Draw Maze Labels
