@@ -450,17 +450,16 @@ void processBullets(void) {
         p1_bullet.x += p1_bullet.vX * 3;
         p1_bullet.y += p1_bullet.vY * 3;
 
-        // 1. TANK COLLISION (Check if hitting Player 2)
+        // 1. TANK COLLISION
         if (p1_bullet.x >= p2_tank.left && p1_bullet.x <= (p2_tank.left + 8) &&
             p1_bullet.y >= p2_tank.top  && p1_bullet.y <= (p2_tank.top + 8)) {
-
             p1_bullet.active = false;
             TriggerFx(SFX_EXPLODE, 0xFF, true);
             Score[0]++;
             if (Score[0] > 9) { Tens[0]++; Score[0] = 0; }
-            hyperTanks(); // Respawn
+            hyperTanks();
         }
-        // 2. WALL COLLISION (Only check if we haven't already hit a tank)
+        // 2. WALL COLLISION
         else if (GetTile(p1_bullet.x / 8, p1_bullet.y / 8) == WALL_TILE) {
             if (!bounce) {
                 p1_bullet.active = false;
@@ -478,10 +477,11 @@ void processBullets(void) {
                 if (p1_bullet.age > 100) p1_bullet.active = false;
             }
         }
+    } // <--- End of movement logic
 
-        if (p1_bullet.active) MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
-        else MoveSprite(1, 0, 240, 1, 1);
-    }
+    // ALWAYS update Sprite 1 based on current status
+    if (p1_bullet.active) MoveSprite(1, p1_bullet.x, p1_bullet.y, 1, 1);
+    else MoveSprite(1, 0, 240, 1, 1);
 
     // --- Player 2 Bullet vs Player 1 Tank ---
     if (p2_bullet.active) {
@@ -491,15 +491,14 @@ void processBullets(void) {
         p2_bullet.x += p2_bullet.vX * 3;
         p2_bullet.y += p2_bullet.vY * 3;
 
-        // 1. TANK COLLISION (Check if hitting Player 1)
+        // 1. TANK COLLISION
         if (p2_bullet.x >= p1_tank.left && p2_bullet.x <= (p1_tank.left + 8) &&
             p2_bullet.y >= p1_tank.top  && p2_bullet.y <= (p1_tank.top + 8)) {
-
             p2_bullet.active = false;
             TriggerFx(SFX_EXPLODE, 0xFF, true);
             Score[1]++;
             if (Score[1] > 9) { Tens[1]++; Score[1] = 0; }
-            hyperTanks(); // Respawn
+            hyperTanks();
         }
         // 2. WALL COLLISION
         else if (GetTile(p2_bullet.x / 8, p2_bullet.y / 8) == WALL_TILE) {
@@ -519,10 +518,11 @@ void processBullets(void) {
                 if (p2_bullet.age > 100) p2_bullet.active = false;
             }
         }
+    } // <--- End of movement logic
 
-        if (p2_bullet.active) MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
-        else MoveSprite(3, 0, 240, 1, 1);
-    }
+    // ALWAYS update Sprite 3 based on current status
+    if (p2_bullet.active) MoveSprite(3, p2_bullet.x, p2_bullet.y, 1, 1);
+    else MoveSprite(3, 0, 240, 1, 1);
 }
 
 void initMaze(void) {
